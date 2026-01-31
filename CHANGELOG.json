@@ -1,0 +1,42 @@
+{
+  "ir_version": "1.0",
+  "project": "VersionConductor",
+  "repository": "https://github.com/grokify/versionconductor",
+  "versioning": "semver",
+  "commit_convention": "conventional",
+  "maintainers": ["grokify"],
+  "releases": [
+    {
+      "version": "v0.1.0",
+      "date": "2026-01-31",
+      "highlights": [
+        { "description": "Automated dependency PR management across multiple GitHub organizations" },
+        { "description": "Policy-based auto-review and merge of Renovate/Dependabot PRs" },
+        { "description": "Maintenance release creation with semantic version bumping" }
+      ],
+      "added": [
+        { "description": "CLI with `scan`, `review`, `merge`, `release`, and `version` commands using Cobra framework" },
+        { "description": "GitHub collector for dependency PR discovery across organizations" },
+        { "description": "Detection of Renovate and Dependabot PRs by author identification" },
+        { "description": "PR metadata extraction including dependency name, versions, and update type" },
+        { "description": "Cedar policy engine for auto-merge decisions" },
+        { "description": "Three built-in merge profiles: `aggressive`, `balanced`, `conservative`" },
+        { "description": "PR merger with squash, merge, and rebase strategies" },
+        { "description": "Release creator with semantic version bumping (patch releases)" },
+        { "description": "JSON and Markdown report formats" },
+        { "description": "Dry-run mode for all write operations" }
+      ],
+      "documentation": [
+        { "description": "README with installation, usage, and examples" },
+        { "description": "Example Cedar policies for auto-merge scenarios" },
+        { "description": "Profile configuration examples" }
+      ],
+      "dependencies": [
+        { "description": "`github.com/google/go-github/v82` for GitHub API" },
+        { "description": "`github.com/grokify/gogithub` v0.7.0 for GitHub API helpers" },
+        { "description": "`github.com/spf13/cobra` v1.10.2 for CLI framework" },
+        { "description": "`github.com/spf13/viper` v1.21.0 for configuration management" }
+      ]
+    }
+  ]
+}
