@@ -15,27 +15,35 @@
         { "description": "Maintenance release creation with semantic version bumping" }
       ],
       "added": [
-        { "description": "CLI with `scan`, `review`, `merge`, `release`, and `version` commands using Cobra framework" },
-        { "description": "GitHub collector for dependency PR discovery across organizations" },
-        { "description": "Detection of Renovate and Dependabot PRs by author identification" },
-        { "description": "PR metadata extraction including dependency name, versions, and update type" },
-        { "description": "Cedar policy engine for auto-merge decisions" },
-        { "description": "Three built-in merge profiles: `aggressive`, `balanced`, `conservative`" },
-        { "description": "PR merger with squash, merge, and rebase strategies" },
-        { "description": "Release creator with semantic version bumping (patch releases)" },
-        { "description": "JSON and Markdown report formats" },
-        { "description": "Dry-run mode for all write operations" }
+        { "description": "CLI with `scan`, `review`, `merge`, `release`, and `version` commands using Cobra framework", "commit": "1c1e14b" },
+        { "description": "GitHub collector for dependency PR discovery across organizations", "commit": "1c1e14b" },
+        { "description": "Detection of Renovate and Dependabot PRs by author identification", "commit": "1c1e14b" },
+        { "description": "PR metadata extraction including dependency name, versions, and update type", "commit": "1c1e14b" },
+        { "description": "Cedar policy engine for auto-merge decisions", "commit": "1c1e14b" },
+        { "description": "Three built-in merge profiles: `aggressive`, `balanced`, `conservative`", "commit": "1c1e14b" },
+        { "description": "PR merger with squash, merge, and rebase strategies", "commit": "1c1e14b" },
+        { "description": "Release creator with semantic version bumping (patch releases)", "commit": "1c1e14b" },
+        { "description": "JSON and Markdown report formats", "commit": "1c1e14b" },
+        { "description": "Dry-run mode for all write operations", "commit": "1c1e14b" },
+        { "description": "Example Cedar policy for auto-merge patch updates", "commit": "6646bb9" }
       ],
       "documentation": [
-        { "description": "README with installation, usage, and examples" },
-        { "description": "Example Cedar policies for auto-merge scenarios" },
-        { "description": "Profile configuration examples" }
+        { "description": "README with installation, usage, and examples", "commit": "fab419e" },
+        { "description": "CHANGELOG with structured format", "commit": "fab419e" },
+        { "description": "Release notes for v0.1.0", "commit": "fab419e" },
+        { "description": "PRD, MRD, and TRD product documents", "commit": "dbb255c" },
+        { "description": "Dependency graph feature specification", "commit": "9050c0f" },
+        { "description": "Scheduled graph upgrades and release propagation", "commit": "952edb0" },
+        { "description": "Comprehensive ROADMAP with prioritized milestones", "commit": "d509923" }
       ],
       "dependencies": [
-        { "description": "`github.com/google/go-github/v82` for GitHub API" },
-        { "description": "`github.com/grokify/gogithub` v0.7.0 for GitHub API helpers" },
-        { "description": "`github.com/spf13/cobra` v1.10.2 for CLI framework" },
-        { "description": "`github.com/spf13/viper` v1.21.0 for configuration management" }
+        { "description": "`github.com/google/go-github/v82` for GitHub API", "commit": "e5670fd" },
+        { "description": "`github.com/grokify/gogithub` v0.7.0 for GitHub API helpers", "commit": "e5670fd" },
+        { "description": "`github.com/spf13/cobra` v1.10.2 for CLI framework", "commit": "e5670fd" },
+        { "description": "`github.com/spf13/viper` v1.21.0 for configuration management", "commit": "e5670fd" }
+      ],
+      "chores": [
+        { "description": "Initial project setup with go.mod, LICENSE, and CI workflow", "commit": "e5670fd" }
       ]
     }
   ]
