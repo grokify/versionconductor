@@ -204,41 +204,147 @@ const (
 
 ### 5. Dependency Graph (`internal/graph`) - v0.2.0
 
-Builds and analyzes dependency relationships across repos in multiple GitHub orgs.
+Builds and analyzes dependency relationships across repos in multiple GitHub orgs, supporting multiple languages and a portfolio of managed accounts.
+
+#### Multi-Org Portfolio Management
+
+VersionConductor manages dependencies across a **portfolio** of GitHub accounts/orgs:
+
+```yaml
+# ~/.versionconductor.yaml
+portfolio:
+  name: "grokify-ecosystem"
+  orgs:
+    - github.com/grokify
+    - github.com/agentplexus
+    - github.com/agentlegion
+    - github.com/enrondata
+  graph_repo: grokify/dependency-graph  # Where to store the graph
+```
+
+**Key Concepts:**
+
+| Concept | Description |
+|---------|-------------|
+| **Portfolio** | Collection of GitHub orgs managed together |
+| **Managed Module** | Module in a portfolio org (we control it) |
+| **External Module** | Module outside portfolio (e.g., `spf13/cobra`) |
+| **Cross-Org Dependency** | Dependency between modules in different portfolio orgs |
+
+#### Multi-Language Support
+
+The graph supports multiple languages with a unified model:
+
+```go
+type Language string
+
+const (
+    LanguageGo         Language = "go"
+    LanguageTypeScript Language = "typescript"
+    LanguageSwift      Language = "swift"
+    LanguagePython     Language = "python"
+    LanguageRust       Language = "rust"
+)
+
+// ManifestParser interface for language-specific parsing
+type ManifestParser interface {
+    Language() Language
+    ManifestFiles() []string  // ["go.mod"] or ["package.json"]
+    Parse(content []byte) (*ParsedManifest, error)
+}
+```
+
+| Language | Manifest File | Status |
+|----------|---------------|--------|
+| Go | `go.mod` | v0.2.0 |
+| TypeScript/JS | `package.json` | v0.4.0 |
+| Swift | `Package.swift` | v0.4.0 |
+| Python | `pyproject.toml` | Future |
+| Rust | `Cargo.toml` | Future |
+
+#### Graph Data Model
 
 ```go
 type Graph interface {
-    // Build graph from repos
-    Build(ctx context.Context, repos []Repo) error
+    // Build graph from portfolio orgs
+    Build(ctx context.Context, portfolio Portfolio) error
 
     // Get all modules that depend on the given module
-    Dependents(module string) []Node
+    Dependents(moduleID string) []Module
 
     // Get all modules that the given module depends on
-    Dependencies(module string) []Node
+    Dependencies(moduleID string) []Module
 
-    // Get upgrade order (topological sort)
-    UpgradeOrder() []Node
+    // Get upgrade order (topological sort) for managed modules only
+    UpgradeOrder() []Module
 
-    // Find modules using outdated versions of a dependency
-    StaleModules(dependency string, minVersion string) []Node
+    // Find managed modules using outdated versions of a dependency
+    StaleModules(dependency string, minVersion string) []Module
+
+    // Filter to specific org
+    FilterByOrg(org string) Graph
 }
 
-type Node struct {
-    Module      string            `json:"module"`      // e.g., github.com/grokify/mogo
-    Repo        Repo              `json:"repo"`        // GitHub repo info
-    Version     string            `json:"version"`     // Current version tag
-    GoMod       GoModInfo         `json:"goMod"`       // Parsed go.mod
-    Dependents  []string          `json:"dependents"`  // Modules that depend on this
-    Dependencies []string         `json:"dependencies"` // Modules this depends on
+type Portfolio struct {
+    Name      string   `json:"name"`
+    Orgs      []string `json:"orgs"`       // ["github.com/grokify", "github.com/agentplexus"]
+    GraphRepo string   `json:"graphRepo"`  // Where to persist the graph
 }
 
-type GoModInfo struct {
-    Module   string              `json:"module"`
-    Go       string              `json:"go"`
-    Require  []ModuleVersion     `json:"require"`
-    Replace  []ModuleReplace     `json:"replace"`
+type Module struct {
+    // Universal ID: "go:github.com/grokify/mogo" or "npm:@agentplexus/core"
+    ID           string      `json:"id"`
+    Language     Language    `json:"language"`
+    Name         string      `json:"name"`         // github.com/grokify/mogo
+    Org          string      `json:"org"`          // github.com/grokify
+    Version      string      `json:"version"`
+    Repo         *Repo       `json:"repo"`
+    IsManaged    bool        `json:"isManaged"`    // true if in portfolio
+    Dependencies []ModuleRef `json:"dependencies"`
+    Dependents   []ModuleRef `json:"dependents"`
 }
+
+type ModuleRef struct {
+    ID         string `json:"id"`
+    Version    string `json:"version"`
+    IsManaged  bool   `json:"isManaged"`
+}
+```
+
+#### Graph Storage (Git Repo)
+
+The graph is persisted in a dedicated git repo for version history and sharing:
+
+```
+grokify/dependency-graph/
+├── portfolio.json                # Portfolio configuration
+├── graph.json                    # Full unified graph
+├── go/
+│   ├── github.com/
+│   │   ├── grokify/
+│   │   │   ├── mogo.json
+│   │   │   ├── gogithub.json
+│   │   │   └── pipelineconductor.json
+│   │   ├── agentplexus/
+│   │   │   └── core.json
+│   │   └── agentlegion/
+│   │       └── agent-sdk.json
+├── typescript/
+│   └── @agentplexus/
+│       └── web-ui.json
+├── snapshots/
+│   ├── 2026-01-31.json
+│   └── 2026-02-07.json
+└── README.md
+```
+
+**Benefits of Git Storage:**
+
+- Version history of dependency changes
+- Shared across team members
+- Audit trail for compliance
+- Can trigger CI on graph changes
+- Diff-able for review
 ```
 
 **Key Operations:**
@@ -254,17 +360,28 @@ type GoModInfo struct {
 **Example Workflow:**
 
 ```bash
-# Build dependency graph across orgs
-versionconductor graph build --orgs grokify,mycompany
+# Initialize portfolio configuration
+versionconductor portfolio init --name grokify-ecosystem \
+  --orgs grokify,agentplexus,agentlegion,enrondata \
+  --graph-repo grokify/dependency-graph
 
-# Show what depends on mogo
+# Build dependency graph across all portfolio orgs
+versionconductor graph build
+
+# Show what depends on mogo (across all portfolio orgs)
 versionconductor graph dependents github.com/grokify/mogo
 
-# Show upgrade order for all repos
-versionconductor graph order --orgs grokify
+# Show upgrade order for all managed modules
+versionconductor graph order
+
+# Filter to specific org
+versionconductor graph order --org github.com/agentplexus
 
 # Find repos using old version of gogithub
 versionconductor graph stale github.com/grokify/gogithub --min-version v0.7.0
+
+# Show cross-org dependencies
+versionconductor graph cross-org
 ```
 
 **Graph Building Process:**
