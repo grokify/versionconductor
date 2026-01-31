@@ -249,9 +249,12 @@ This document outlines the development roadmap for VersionConductor, prioritized
 - [x] DOT/Mermaid visualization
 - [x] Unit tests for go.mod parser and graph algorithms
 
+### Implemented (v0.2.0 - Continued)
+
+- [x] Integration tests with mocked GitHub API
+
 ### Not Yet Implemented
 
-- [ ] Integration tests with mocked GitHub API
 - [ ] Incremental cache updates
 - [ ] Cache warming
 - [ ] Cedar policy evaluation (wired up)
