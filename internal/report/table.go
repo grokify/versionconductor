@@ -182,3 +182,60 @@ func truncate(s string, maxLen int) string {
 	}
 	return s[:maxLen-3] + "..."
 }
+
+// Table represents a simple text table for output.
+type Table struct {
+	Headers []string
+	Rows    []TableRow
+}
+
+// TableRow represents a row in a table.
+type TableRow struct {
+	Cells []string
+}
+
+// Render renders the table as a string.
+func (t *Table) Render() string {
+	if len(t.Headers) == 0 || len(t.Rows) == 0 {
+		return ""
+	}
+
+	// Calculate column widths
+	widths := make([]int, len(t.Headers))
+	for i, h := range t.Headers {
+		widths[i] = len(h)
+	}
+	for _, row := range t.Rows {
+		for i, cell := range row.Cells {
+			if i < len(widths) && len(cell) > widths[i] {
+				widths[i] = len(cell)
+			}
+		}
+	}
+
+	var sb strings.Builder
+
+	// Render header
+	for i, h := range t.Headers {
+		sb.WriteString(fmt.Sprintf("%-*s  ", widths[i], h))
+	}
+	sb.WriteString("\n")
+
+	// Render separator
+	for _, w := range widths {
+		sb.WriteString(strings.Repeat("-", w) + "  ")
+	}
+	sb.WriteString("\n")
+
+	// Render rows
+	for _, row := range t.Rows {
+		for i, cell := range row.Cells {
+			if i < len(widths) {
+				sb.WriteString(fmt.Sprintf("%-*s  ", widths[i], cell))
+			}
+		}
+		sb.WriteString("\n")
+	}
+
+	return sb.String()
+}
