@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -114,10 +115,20 @@ func init() {
 	graphStaleCmd.Flags().String("min-version", "", "Minimum required version")
 	_ = graphStaleCmd.MarkFlagRequired("min-version")
 
+	// Cache flags (apply to all graph commands)
+	graphCmd.PersistentFlags().Bool("cache", true, "Enable caching of API responses")
+	graphCmd.PersistentFlags().String("cache-dir", "", "Cache directory (default: system temp)")
+	graphCmd.PersistentFlags().Duration("cache-ttl", time.Hour, "Cache TTL duration")
+	graphCmd.PersistentFlags().Bool("no-cache", false, "Disable caching")
+
 	_ = viper.BindPFlag("graph.languages", graphBuildCmd.Flags().Lookup("languages"))
 	_ = viper.BindPFlag("graph.output", graphBuildCmd.Flags().Lookup("output"))
 	_ = viper.BindPFlag("graph.org", graphOrderCmd.Flags().Lookup("org"))
 	_ = viper.BindPFlag("graph.min-version", graphStaleCmd.Flags().Lookup("min-version"))
+	_ = viper.BindPFlag("graph.cache", graphCmd.PersistentFlags().Lookup("cache"))
+	_ = viper.BindPFlag("graph.cache-dir", graphCmd.PersistentFlags().Lookup("cache-dir"))
+	_ = viper.BindPFlag("graph.cache-ttl", graphCmd.PersistentFlags().Lookup("cache-ttl"))
+	_ = viper.BindPFlag("graph.no-cache", graphCmd.PersistentFlags().Lookup("no-cache"))
 }
 
 func runGraphBuild(cmd *cobra.Command, args []string) error {
@@ -408,7 +419,27 @@ func loadOrBuildGraph(ctx context.Context) (graph.Graph, error) {
 		Languages: []string{"go"},
 	}
 
-	builder := graph.NewBuilder(token)
+	// Setup cache if enabled
+	var cache *graph.Cache
+	if !viper.GetBool("graph.no-cache") {
+		cacheConfig := graph.CacheConfig{
+			Dir: viper.GetString("graph.cache-dir"),
+			TTL: viper.GetDuration("graph.cache-ttl"),
+		}
+		var err error
+		cache, err = graph.NewCache(cacheConfig)
+		if err != nil {
+			// Log warning but continue without cache
+			fmt.Fprintf(os.Stderr, "Warning: failed to create cache: %v\n", err)
+		}
+	}
+
+	// Build with configuration
+	builder := graph.NewBuilderWithConfig(graph.BuilderConfig{
+		Token: token,
+		Cache: cache,
+	})
+
 	return builder.Build(ctx, portfolio)
 }
 
