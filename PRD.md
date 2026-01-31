@@ -13,6 +13,8 @@ Organizations with many repositories face significant overhead managing dependen
 3. **Inconsistent Policies**: Different teams apply different merge criteria
 4. **Release Lag**: Dependencies get merged but releases aren't cut, leaving users on outdated versions
 5. **Security Delays**: Critical security patches sit in PR queues waiting for review
+6. **Upgrade Order Complexity**: With 100s of interdependent repos across multiple orgs, knowing which modules to upgrade first is unclear
+7. **Cascade Blindness**: When a foundational module is updated, dependent modules need updates but this cascade is hard to track
 
 ## Goals
 
@@ -21,6 +23,8 @@ Organizations with many repositories face significant overhead managing dependen
 3. **Accelerate Security Patches**: Fast-track critical updates with appropriate policies
 4. **Automate Maintenance Releases**: Create patch releases when dependencies are updated
 5. **Maintain Visibility**: Provide clear reporting on dependency update status
+6. **Understand Upgrade Order**: Build dependency graph to determine correct upgrade sequence
+7. **Track Cascade Updates**: When a module is released, identify all dependents needing updates
 
 ## Non-Goals
 
@@ -86,6 +90,22 @@ Organizations with many repositories face significant overhead managing dependen
 
 ### P1: Should Have (v0.2.0)
 
+#### Dependency Graph Analysis
+
+- Build dependency graph across repos in multiple GitHub orgs
+- Parse `go.mod` files to identify inter-repo dependencies
+- Topological sort to determine correct upgrade order
+- Walk up the graph to find all dependents of a module
+- Detect stale dependents (dependency released but dependent not updated)
+- Visualize dependency relationships
+
+**Use Cases:**
+
+1. "Which of my repos depend on `mogo`?" → List all dependents
+2. "I just released `gogithub` v0.7.0, what needs updating?" → Walk up graph
+3. "What order should I upgrade these 50 repos?" → Topological sort
+4. "Which repos are using outdated versions of my modules?" → Stale detection
+
 #### Maintenance Releases
 
 - Detect repos with merged dependency PRs since last release
@@ -135,7 +155,7 @@ See [MRD.md](MRD.md) for market analysis and competitive landscape.
 | Phase | Features | Target |
 |-------|----------|--------|
 | v0.1.0 | Scan, Review, Merge, Basic Reporting | Q1 2026 |
-| v0.2.0 | Maintenance Releases, Policy Testing | Q2 2026 |
+| v0.2.0 | Dependency Graph, Maintenance Releases, Policy Testing | Q2 2026 |
 | v0.3.0 | Notifications, Dashboard | Q3 2026 |
 
 ## Related Projects

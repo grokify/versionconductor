@@ -17,10 +17,16 @@ VersionConductor is a Go CLI application for automated dependency PR management 
 │  └──────────────┘  └──────────────┘  └──────────────────────┘  │
 │                                                                   │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
-│  │   Releaser   │  │    Report    │  │      pkg/model       │  │
-│  │ - Semver     │  │ - JSON       │  │ - PullRequest        │  │
-│  │ - Tags       │  │ - Markdown   │  │ - Release            │  │
+│  │   Releaser   │  │    Graph     │  │      Report          │  │
+│  │ - Semver     │  │ - Dep Graph  │  │ - JSON               │  │
+│  │ - Tags       │  │ - Topo Sort  │  │ - Markdown           │  │
 │  └──────────────┘  └──────────────┘  └──────────────────────┘  │
+│                                                                   │
+│                    ┌──────────────────────┐                      │
+│                    │      pkg/model       │                      │
+│                    │ - PullRequest        │                      │
+│                    │ - Release, Graph     │                      │
+│                    └──────────────────────┘                      │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -36,11 +42,17 @@ versionconductor/
 │       ├── review.go         # Auto-review PRs based on policy
 │       ├── merge.go          # Auto-merge approved PRs
 │       ├── release.go        # Create maintenance releases
+│       ├── graph.go          # Dependency graph commands (v0.2.0)
 │       └── version.go        # CLI version info
 ├── internal/
 │   ├── collector/
 │   │   ├── collector.go      # Interface definition
 │   │   └── github.go         # GitHub PR collection
+│   ├── graph/                # Dependency graph (v0.2.0)
+│   │   ├── graph.go          # Graph data structure
+│   │   ├── builder.go        # Build graph from go.mod files
+│   │   ├── walker.go         # Walk up/down the graph
+│   │   └── topo.go           # Topological sort for upgrade order
 │   ├── policy/
 │   │   ├── engine.go         # Cedar policy evaluation
 │   │   ├── context.go        # PR context builder
@@ -62,6 +74,7 @@ versionconductor/
 │   ├── pullrequest.go        # PR model with dependency info
 │   ├── release.go            # Release/tag model
 │   ├── result.go             # Scan/merge results
+│   ├── graph.go              # Graph node and edge models
 │   └── policy.go             # Policy context for Cedar
 ├── policies/
 │   └── examples/
@@ -189,7 +202,89 @@ const (
 )
 ```
 
-### 5. Data Models (`pkg/model`)
+### 5. Dependency Graph (`internal/graph`) - v0.2.0
+
+Builds and analyzes dependency relationships across repos in multiple GitHub orgs.
+
+```go
+type Graph interface {
+    // Build graph from repos
+    Build(ctx context.Context, repos []Repo) error
+
+    // Get all modules that depend on the given module
+    Dependents(module string) []Node
+
+    // Get all modules that the given module depends on
+    Dependencies(module string) []Node
+
+    // Get upgrade order (topological sort)
+    UpgradeOrder() []Node
+
+    // Find modules using outdated versions of a dependency
+    StaleModules(dependency string, minVersion string) []Node
+}
+
+type Node struct {
+    Module      string            `json:"module"`      // e.g., github.com/grokify/mogo
+    Repo        Repo              `json:"repo"`        // GitHub repo info
+    Version     string            `json:"version"`     // Current version tag
+    GoMod       GoModInfo         `json:"goMod"`       // Parsed go.mod
+    Dependents  []string          `json:"dependents"`  // Modules that depend on this
+    Dependencies []string         `json:"dependencies"` // Modules this depends on
+}
+
+type GoModInfo struct {
+    Module   string              `json:"module"`
+    Go       string              `json:"go"`
+    Require  []ModuleVersion     `json:"require"`
+    Replace  []ModuleReplace     `json:"replace"`
+}
+```
+
+**Key Operations:**
+
+| Operation | Description | Use Case |
+|-----------|-------------|----------|
+| `Build` | Parse go.mod files, build graph | Initial setup |
+| `Dependents` | Walk up graph from a module | "What uses mogo?" |
+| `Dependencies` | Walk down graph from a module | "What does pipelineconductor need?" |
+| `UpgradeOrder` | Topological sort | "What order to upgrade 50 repos?" |
+| `StaleModules` | Find outdated dependents | "Who's still on gogithub v0.6.0?" |
+
+**Example Workflow:**
+
+```bash
+# Build dependency graph across orgs
+versionconductor graph build --orgs grokify,mycompany
+
+# Show what depends on mogo
+versionconductor graph dependents github.com/grokify/mogo
+
+# Show upgrade order for all repos
+versionconductor graph order --orgs grokify
+
+# Find repos using old version of gogithub
+versionconductor graph stale github.com/grokify/gogithub --min-version v0.7.0
+```
+
+**Graph Building Process:**
+
+1. List all repos across specified orgs
+2. Fetch `go.mod` from each repo's default branch
+3. Parse `go.mod` to extract module path and dependencies
+4. Build directed graph: edge from A→B means A depends on B
+5. Detect cycles (Go modules shouldn't have cycles, but report if found)
+6. Cache graph for subsequent operations
+
+**Cascade Update Detection:**
+
+When module X releases a new version:
+1. Find all dependents of X using `Dependents(X)`
+2. For each dependent, check if it has a PR updating X
+3. If no PR exists, flag as "needs update"
+4. After dependent Y is updated and released, recursively check Y's dependents
+
+### 6. Data Models (`pkg/model`)
 
 ```go
 // PullRequest represents a dependency update PR
@@ -253,6 +348,30 @@ Create maintenance releases for repos with merged dependency PRs.
 ```bash
 versionconductor release --orgs myorg --dry-run
 versionconductor release --orgs myorg --since 2026-01-01
+```
+
+### graph (v0.2.0)
+
+Build and analyze dependency graph across organizations.
+
+```bash
+# Build dependency graph
+versionconductor graph build --orgs grokify,mycompany
+
+# Show all modules that depend on a given module
+versionconductor graph dependents github.com/grokify/mogo
+
+# Show all dependencies of a module
+versionconductor graph dependencies github.com/grokify/pipelineconductor
+
+# Show correct upgrade order (topological sort)
+versionconductor graph order --orgs grokify
+
+# Find modules using outdated version of a dependency
+versionconductor graph stale github.com/grokify/gogithub --min-version v0.7.0
+
+# Visualize graph (outputs DOT format for Graphviz)
+versionconductor graph visualize --orgs grokify --format dot > deps.dot
 ```
 
 ## Configuration
@@ -340,6 +459,9 @@ Respects repository branch protection rules:
 - Semver parsing and bumping
 - PR title parsing
 - Report generation
+- Graph building and traversal (v0.2.0)
+- Topological sort (v0.2.0)
+- go.mod parsing (v0.2.0)
 
 ### Integration Tests
 
@@ -356,6 +478,10 @@ Respects repository branch protection rules:
 
 ### v0.2.0
 
+- **Dependency Graph**: Build and analyze inter-repo dependencies
+- Topological sort for upgrade ordering
+- Walk-up-graph to find dependents
+- Stale module detection
 - Cedar policy testing framework
 - Policy loading from repository
 - Enhanced changelog generation
@@ -365,6 +491,7 @@ Respects repository branch protection rules:
 - Slack/Teams notifications
 - Webhook support
 - Metrics/observability
+- Graph caching and incremental updates
 
 ### v0.4.0
 

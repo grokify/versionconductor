@@ -26,8 +26,33 @@ Organizations using Renovate or Dependabot face a paradox: automation creates mo
 | PR Creation | Renovate, Dependabot | ✅ Well-served |
 | Review & Merge | **Manual process** | ❌ **Unaddressed** |
 | Release Creation | **Manual process** | ❌ **Unaddressed** |
+| Upgrade Ordering | **No tooling** | ❌ **Unaddressed** |
+| Cascade Tracking | **No tooling** | ❌ **Unaddressed** |
 
-**VersionConductor fills the Review & Merge and Release Creation gaps.**
+**VersionConductor fills the Review & Merge, Release Creation, Upgrade Ordering, and Cascade Tracking gaps.**
+
+### The Multi-Repo Dependency Challenge
+
+Organizations maintaining 100s of repos across multiple GitHub accounts face an additional challenge: **interdependencies between their own modules**.
+
+**Example Scenario:**
+
+```
+mogo (foundational library)
+  ↑
+gogithub (depends on mogo)
+  ↑
+pipelineconductor (depends on gogithub, mogo)
+  ↑
+versionconductor (depends on gogithub, mogo)
+```
+
+When `mogo` releases a new version:
+1. Which repos need to be updated? (gogithub, pipelineconductor, versionconductor)
+2. What order should they be updated? (gogithub first, then the others)
+3. After gogithub is updated, do pipelineconductor and versionconductor need another update?
+
+**No existing tool answers these questions across multiple GitHub orgs.**
 
 ## Competitive Landscape
 
@@ -177,6 +202,30 @@ No open-source framework that:
 - Compliance violations
 - Potential breach
 
+### Pain Point 6: Unknown Upgrade Order
+
+> "We have 150 Go modules across 3 GitHub orgs. When we update our core library, we have no idea which repos to update first or which ones depend on it."
+> — Platform Engineer
+
+**Impact:**
+
+- Random upgrade order causes churn
+- Dependent modules updated before dependencies
+- Multiple rounds of updates required
+- Wasted CI cycles
+
+### Pain Point 7: Cascade Blindness
+
+> "We released a new version of our utility library but forgot which of our 80 services use it. Three months later, half are still on the old version."
+> — Engineering Manager
+
+**Impact:**
+
+- Inconsistent versions across ecosystem
+- Security fixes not propagated
+- Bug fixes not reaching dependents
+- Manual tracking in spreadsheets
+
 ## Value Proposition
 
 ### How VersionConductor Addresses Pain Points
@@ -188,10 +237,13 @@ No open-source framework that:
 | Release lag | Automated maintenance releases |
 | No visibility | Cross-org scanning and reporting |
 | Security delays | Policy-based fast-track for patches |
+| Unknown upgrade order | Dependency graph with topological sort |
+| Cascade blindness | Walk-up-graph to find all dependents |
 
 ### Unique Differentiators
 
-1. **Policy-as-Code**: Cedar policies are testable, versionable, auditable
+1. **Dependency Graph**: Build and analyze dependency relationships across orgs
+2. **Policy-as-Code**: Cedar policies are testable, versionable, auditable
 2. **Cross-Org Scanning**: Single view of dependency PRs across organizations
 3. **Maintenance Releases**: Automatic patch releases when dependencies update
 4. **Open Source**: No vendor lock-in, community-driven
