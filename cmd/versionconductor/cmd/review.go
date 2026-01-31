@@ -230,6 +230,12 @@ func evaluateForReview(profile *model.MergeProfile, pr *model.PullRequest, check
 		if !pr.TestsPassed {
 			return false, "CI checks not passed"
 		}
+		// Verify all checks completed successfully
+		for _, check := range checks {
+			if check.Status != "completed" || check.Conclusion != "success" {
+				return false, "not all CI checks passed: " + check.Name
+			}
+		}
 	}
 
 	// Check update type eligibility
