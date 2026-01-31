@@ -106,6 +106,39 @@ Organizations with many repositories face significant overhead managing dependen
 3. "What order should I upgrade these 50 repos?" → Topological sort
 4. "Which repos are using outdated versions of my modules?" → Stale detection
 
+#### Scheduled Graph Upgrades
+
+- Schedule weekly upgrade windows (e.g., every Tuesday at 2am UTC)
+- Upgrade entire dependency graph in topological order
+- Bottom-up approach: upgrade foundational modules first
+- After each module is upgraded and CI passes, create release tag
+- Propagate new release version to dependents automatically
+- Continue walking up the graph until all modules are current
+
+**Upgrade Workflow:**
+
+```
+Week N: Scheduled upgrade window
+  1. Build fresh dependency graph
+  2. Start with leaf nodes (modules with no internal dependencies)
+  3. For each module in topological order:
+     a. Merge pending dependency PRs
+     b. Run CI/tests
+     c. If passing, create patch release (v1.2.3 → v1.2.4)
+     d. Trigger/wait for Renovate to create PRs in dependents
+  4. Move up the graph, repeat for next layer
+  5. Generate summary report of all upgrades and releases
+```
+
+**Release Propagation:**
+
+When module X releases v1.2.4:
+- Renovate/Dependabot detects new version
+- Creates PR in all dependent modules
+- VersionConductor merges those PRs (per policy)
+- Dependent modules release their own patch versions
+- Cycle continues up the dependency graph
+
 #### Maintenance Releases
 
 - Detect repos with merged dependency PRs since last release

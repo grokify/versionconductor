@@ -73,6 +73,8 @@ Renovate has built-in auto-merge capabilities.
 - No central policy management
 - No cross-repo visibility
 - No maintenance release automation
+- No orchestrated graph-wide upgrades
+- No automatic release creation after merge
 
 #### 2. Dependabot Auto-Merge Actions
 
@@ -140,6 +142,8 @@ No open-source framework that:
 - ✔ Scans dependency PRs across multiple organizations
 - ✔ Applies central policy-as-code for merge decisions
 - ✔ Provides org-wide visibility into dependency status
+- ✔ Orchestrates scheduled graph-wide upgrades in correct order
+- ✔ Automatically creates releases after merging, propagating to dependents
 - ✔ Automatically creates maintenance releases
 - ✔ Works with both Renovate and Dependabot
 
@@ -243,7 +247,9 @@ No open-source framework that:
 ### Unique Differentiators
 
 1. **Dependency Graph**: Build and analyze dependency relationships across orgs
-2. **Policy-as-Code**: Cedar policies are testable, versionable, auditable
+2. **Scheduled Graph Upgrades**: Upgrade entire dependency graph in correct order on a schedule
+3. **Release Propagation**: Automatically release updated modules, triggering cascading updates
+4. **Policy-as-Code**: Cedar policies are testable, versionable, auditable
 2. **Cross-Org Scanning**: Single view of dependency PRs across organizations
 3. **Maintenance Releases**: Automatic patch releases when dependencies update
 4. **Open Source**: No vendor lock-in, community-driven

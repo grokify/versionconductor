@@ -284,6 +284,69 @@ When module X releases a new version:
 3. If no PR exists, flag as "needs update"
 4. After dependent Y is updated and released, recursively check Y's dependents
 
+**Scheduled Graph Upgrade Orchestration:**
+
+For organizations wanting to upgrade their entire dependency graph on a schedule:
+
+```go
+type UpgradeOrchestrator interface {
+    // Run full graph upgrade in topological order
+    UpgradeGraph(ctx context.Context, opts UpgradeOptions) (*UpgradeReport, error)
+}
+
+type UpgradeOptions struct {
+    Orgs           []string      // GitHub orgs to include
+    Schedule       string        // Cron expression (e.g., "0 2 * * TUE")
+    DryRun         bool          // Preview without executing
+    CreateReleases bool          // Create patch releases after merge
+    WaitForCI      bool          // Wait for CI to pass before releasing
+    Timeout        time.Duration // Max time per module
+}
+
+type UpgradeReport struct {
+    StartTime       time.Time
+    EndTime         time.Time
+    ModulesUpgraded []ModuleUpgrade
+    ReleasesCreated []Release
+    Failures        []UpgradeFailure
+}
+```
+
+**Upgrade Algorithm:**
+
+```
+1. Build dependency graph G for all repos in specified orgs
+2. Compute topological order T = toposort(G)
+3. For each module M in T (bottom-up):
+   a. List open dependency PRs for M
+   b. For each PR that passes policy:
+      - Merge PR
+      - Wait for CI
+   c. If any PRs were merged and CI passes:
+      - Bump patch version
+      - Create GitHub release
+      - Log release to report
+   d. Wait for Renovate/Dependabot to detect new release
+      (or trigger via API if supported)
+4. Return UpgradeReport with summary
+```
+
+**CLI Commands for Orchestration:**
+
+```bash
+# Preview full graph upgrade (dry-run)
+versionconductor upgrade --orgs grokify --dry-run
+
+# Execute full graph upgrade with releases
+versionconductor upgrade --orgs grokify --create-releases
+
+# Schedule recurring upgrades (outputs cron job config)
+versionconductor upgrade schedule --orgs grokify --cron "0 2 * * TUE"
+
+# Check status of last upgrade run
+versionconductor upgrade status --orgs grokify
+```
+
 ### 6. Data Models (`pkg/model`)
 
 ```go
