@@ -93,6 +93,28 @@ var graphStatsCmd = &cobra.Command{
 	RunE:  runGraphStats,
 }
 
+var graphVisualizeCmd = &cobra.Command{
+	Use:   "visualize",
+	Short: "Output graph in DOT or Mermaid format",
+	Long: `Generate visualization output for the dependency graph.
+
+Supported formats:
+  - dot: Graphviz DOT format (default)
+  - mermaid: Mermaid diagram format
+
+Examples:
+  # Output DOT format for Graphviz
+  versionconductor graph visualize --orgs grokify > graph.dot
+  dot -Tpng graph.dot -o graph.png
+
+  # Output Mermaid format
+  versionconductor graph visualize --orgs grokify --viz-format mermaid
+
+  # Include external dependencies
+  versionconductor graph visualize --orgs grokify --show-external`,
+	RunE: runGraphVisualize,
+}
+
 func init() {
 	rootCmd.AddCommand(graphCmd)
 
@@ -103,6 +125,7 @@ func init() {
 	graphCmd.AddCommand(graphOrderCmd)
 	graphCmd.AddCommand(graphStaleCmd)
 	graphCmd.AddCommand(graphStatsCmd)
+	graphCmd.AddCommand(graphVisualizeCmd)
 
 	// Build command flags
 	graphBuildCmd.Flags().StringSlice("languages", []string{"go"}, "Languages to scan: go, typescript, swift")
@@ -114,6 +137,13 @@ func init() {
 	// Stale command flags
 	graphStaleCmd.Flags().String("min-version", "", "Minimum required version")
 	_ = graphStaleCmd.MarkFlagRequired("min-version")
+
+	// Visualize command flags
+	graphVisualizeCmd.Flags().String("viz-format", "dot", "Output format: dot, mermaid")
+	graphVisualizeCmd.Flags().Bool("show-external", false, "Include external dependencies")
+	graphVisualizeCmd.Flags().Bool("show-versions", true, "Show version labels on edges")
+	graphVisualizeCmd.Flags().Bool("cluster", true, "Cluster nodes by organization")
+	graphVisualizeCmd.Flags().String("direction", "TB", "Layout direction: TB, LR, BT, RL")
 
 	// Cache flags (apply to all graph commands)
 	graphCmd.PersistentFlags().Bool("cache", true, "Enable caching of API responses")
@@ -485,4 +515,52 @@ func formatModulesTable(modules []graph.Module) string {
 	}
 
 	return table.Render()
+}
+
+func runGraphVisualize(cmd *cobra.Command, args []string) error {
+	ctx := context.Background()
+
+	g, err := loadOrBuildGraph(ctx)
+	if err != nil {
+		return err
+	}
+
+	// Type assert to get visualization methods
+	dg, ok := g.(*graph.DependencyGraph)
+	if !ok {
+		return fmt.Errorf("cannot visualize this graph type")
+	}
+
+	vizFormat, _ := cmd.Flags().GetString("viz-format")
+	showExternal, _ := cmd.Flags().GetBool("show-external")
+	showVersions, _ := cmd.Flags().GetBool("show-versions")
+	cluster, _ := cmd.Flags().GetBool("cluster")
+	direction, _ := cmd.Flags().GetString("direction")
+
+	switch vizFormat {
+	case "mermaid":
+		cfg := graph.MermaidConfig{
+			Direction:    direction,
+			ShowExternal: showExternal,
+		}
+		output := dg.ToMermaid(cfg)
+		fmt.Print(output)
+
+	case "dot":
+		fallthrough
+	default:
+		cfg := graph.DOTConfig{
+			Title:         "Dependency Graph",
+			RankDir:       direction,
+			ShowExternal:  showExternal,
+			ShowVersions:  showVersions,
+			ClusterByOrg:  cluster,
+			ColorManaged:  "#4CAF50",
+			ColorExternal: "#9E9E9E",
+		}
+		output := dg.ToDOT(cfg)
+		fmt.Print(output)
+	}
+
+	return nil
 }
