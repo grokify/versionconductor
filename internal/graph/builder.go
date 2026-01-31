@@ -3,9 +3,12 @@ package graph
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"strings"
+	"time"
 
 	"github.com/google/go-github/v82/github"
+	"github.com/grokify/mogo/net/http/retryhttp"
 	"github.com/grokify/versionconductor/pkg/model"
 )
 
@@ -13,16 +16,56 @@ import (
 type Builder struct {
 	client    *github.Client
 	portfolio Portfolio
+	cache     *Cache
+}
+
+// BuilderConfig configures the graph builder.
+type BuilderConfig struct {
+	// Token is the GitHub personal access token.
+	Token string
+
+	// MaxRetries is the maximum number of retry attempts for API calls.
+	// Default is 3.
+	MaxRetries int
+
+	// InitialBackoff is the initial backoff duration for retries.
+	// Default is 1 second.
+	InitialBackoff time.Duration
+
+	// Cache is an optional cache for API responses.
+	Cache *Cache
 }
 
 // NewBuilder creates a new graph builder with GitHub authentication.
 func NewBuilder(token string) *Builder {
-	client := github.NewClient(nil)
-	if token != "" {
-		client = client.WithAuthToken(token)
+	return NewBuilderWithConfig(BuilderConfig{Token: token})
+}
+
+// NewBuilderWithConfig creates a new graph builder with configuration.
+func NewBuilderWithConfig(cfg BuilderConfig) *Builder {
+	// Create HTTP client with retry transport
+	retryOpts := []retryhttp.Option{}
+
+	if cfg.MaxRetries > 0 {
+		retryOpts = append(retryOpts, retryhttp.WithMaxRetries(cfg.MaxRetries))
 	}
+	if cfg.InitialBackoff > 0 {
+		retryOpts = append(retryOpts, retryhttp.WithInitialBackoff(cfg.InitialBackoff))
+	}
+
+	// Create retry transport - handles 429 rate limits automatically
+	rt := retryhttp.NewWithOptions(retryOpts...)
+	httpClient := &http.Client{Transport: rt}
+
+	// Create GitHub client with retry-enabled HTTP client
+	client := github.NewClient(httpClient)
+	if cfg.Token != "" {
+		client = client.WithAuthToken(cfg.Token)
+	}
+
 	return &Builder{
 		client: client,
+		cache:  cfg.Cache,
 	}
 }
 
@@ -117,6 +160,14 @@ func (b *Builder) listRepos(ctx context.Context, owner string) ([]*github.Reposi
 
 // fetchGoMod fetches the go.mod file from a repository.
 func (b *Builder) fetchGoMod(ctx context.Context, owner, repo, branch string) ([]byte, error) {
+	// Check cache first
+	if b.cache != nil {
+		cacheKey := fmt.Sprintf("gomod:%s/%s:%s", owner, repo, branch)
+		if data, ok := b.cache.Get(ctx, cacheKey); ok {
+			return data, nil
+		}
+	}
+
 	content, _, resp, err := b.client.Repositories.GetContents(
 		ctx, owner, repo, "go.mod",
 		&github.RepositoryContentGetOptions{Ref: branch},
@@ -134,7 +185,15 @@ func (b *Builder) fetchGoMod(ctx context.Context, owner, repo, branch string) ([
 		return nil, fmt.Errorf("failed to decode content: %w", err)
 	}
 
-	return []byte(decodedContent), nil
+	data := []byte(decodedContent)
+
+	// Store in cache
+	if b.cache != nil {
+		cacheKey := fmt.Sprintf("gomod:%s/%s:%s", owner, repo, branch)
+		_ = b.cache.Set(ctx, cacheKey, data)
+	}
+
+	return data, nil
 }
 
 // createModule creates a Module from repo and go.mod info.
