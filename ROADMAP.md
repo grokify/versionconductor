@@ -234,17 +234,28 @@ This document outlines the development roadmap for VersionConductor, prioritized
 - [x] Release creation with semver bumping
 - [x] JSON/Markdown reports
 
+### Implemented (v0.2.0 - In Progress)
+
+- [x] go.mod parser with require, replace, exclude support
+- [x] Dependency graph data structure
+- [x] Graph builder with GitHub API integration
+- [x] Cycle detection
+- [x] Topological sort for upgrade ordering
+- [x] Dependents/dependencies queries
+- [x] Graph CLI commands (build, dependents, dependencies, order, stale, stats, visualize)
+- [x] Local cache with TTL (memory + file backends)
+- [x] Rate limit handling via mogo/retryhttp
+- [x] Progress reporting
+- [x] DOT/Mermaid visualization
+- [x] Unit tests for go.mod parser and graph algorithms
+
 ### Not Yet Implemented
 
-- [ ] Unit tests
-- [ ] Integration tests
+- [ ] Integration tests with mocked GitHub API
+- [ ] Incremental cache updates
+- [ ] Cache warming
 - [ ] Cedar policy evaluation (wired up)
-- [ ] go.mod parsing
-- [ ] Dependency graph
-- [ ] Topological sort
 - [ ] Scheduled upgrades
-- [ ] Rate limit handling
-- [ ] Caching
 
 ---
 
