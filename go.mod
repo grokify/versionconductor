@@ -5,7 +5,7 @@ go 1.24.0
 require (
 	github.com/google/go-github/v82 v82.0.0
 	github.com/grokify/gogithub v0.7.0
-	github.com/grokify/mogo v0.72.7
+	github.com/grokify/mogo v0.73.0
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/viper v1.21.0
 	gopkg.in/yaml.v3 v3.0.1
