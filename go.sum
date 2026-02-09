@@ -16,8 +16,8 @@ github.com/google/go-querystring v1.2.0 h1:yhqkPbu2/OH+V9BfpCVPZkNmUXhb2gBxJArfh
 github.com/google/go-querystring v1.2.0/go.mod h1:8IFJqpSRITyJ8QhQ13bmbeMBDfmeEJZD5A0egEOmkqU=
 github.com/grokify/gogithub v0.7.0 h1:2mBxNt9m3TV8OuYZlboc94Z9LxVqFqvnEvdgUhNMXGA=
 github.com/grokify/gogithub v0.7.0/go.mod h1:OrQ6wRaEAuyHIgR/iVc6sELj5kflsc6Inx7Aw3ylcqo=
-github.com/grokify/mogo v0.72.7 h1:Fk/SVXYVXxCSzJlC4nEx2KVTRdRTIxWQnMFcFmVbbuA=
-github.com/grokify/mogo v0.72.7/go.mod h1:PtZZX64oEeKfYls6ny6naZRnAHRWiDq5YHEm+Jilsag=
+github.com/grokify/mogo v0.73.0 h1:93VSQFp0ITbM2+gmWswm4vUOB3hgBmhGJy8+pE5VBFE=
+github.com/grokify/mogo v0.73.0/go.mod h1:2jmNB5E17lrXFiJLlTIkDDhHeBmCDKbr/nQMnHTqqRI=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=
