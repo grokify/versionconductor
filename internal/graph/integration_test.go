@@ -12,6 +12,14 @@ import (
 	"github.com/google/go-github/v84/github"
 )
 
+// mustEncode encodes v as JSON to w, panicking on error.
+// Panics because encoding errors in test mocks indicate a programming error.
+func mustEncode(w http.ResponseWriter, v any) {
+	if err := json.NewEncoder(w).Encode(v); err != nil {
+		panic(err)
+	}
+}
+
 // mockGitHubServer creates a test server that simulates GitHub API responses.
 func mockGitHubServer(t *testing.T, handlers map[string]http.HandlerFunc) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -80,7 +88,7 @@ func TestBuilder_Build_Integration(t *testing.T) {
 				makeRepoResponse("testorg", "gogithub"),
 			}
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(repos)
+			mustEncode(w, repos)
 		},
 		"/repos/testorg/mogo/contents/go.mod": func(w http.ResponseWriter, r *http.Request) {
 			content := &github.RepositoryContent{
@@ -88,7 +96,7 @@ func TestBuilder_Build_Integration(t *testing.T) {
 				Encoding: github.Ptr("base64"),
 			}
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(content)
+			mustEncode(w, content)
 		},
 		"/repos/testorg/gogithub/contents/go.mod": func(w http.ResponseWriter, r *http.Request) {
 			content := &github.RepositoryContent{
@@ -98,7 +106,7 @@ func TestBuilder_Build_Integration(t *testing.T) {
 				Encoding: github.Ptr("base64"),
 			}
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(content)
+			mustEncode(w, content)
 		},
 	}
 
@@ -160,13 +168,13 @@ func TestBuilder_Build_NoGoMod(t *testing.T) {
 				makeRepoResponse("testorg", "docs-only"),
 			}
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(repos)
+			mustEncode(w, repos)
 		},
 		"/repos/testorg/docs-only/contents/go.mod": func(w http.ResponseWriter, r *http.Request) {
 			// Return 404 for no go.mod
 			w.WriteHeader(http.StatusNotFound)
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(map[string]string{
+			mustEncode(w, map[string]string{
 				"message": "Not Found",
 			})
 		},
@@ -201,14 +209,14 @@ func TestBuilder_Build_APIError(t *testing.T) {
 		"/users/testorg/repos": func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(map[string]string{
+			mustEncode(w, map[string]string{
 				"message": "Internal Server Error",
 			})
 		},
 		"/orgs/testorg/repos": func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(map[string]string{
+			mustEncode(w, map[string]string{
 				"message": "Internal Server Error",
 			})
 		},
@@ -242,14 +250,14 @@ func TestBuilder_Build_MultipleOrgs(t *testing.T) {
 				makeRepoResponse("org1", "core"),
 			}
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(repos)
+			mustEncode(w, repos)
 		},
 		"/users/org2/repos": func(w http.ResponseWriter, r *http.Request) {
 			repos := []*github.Repository{
 				makeRepoResponse("org2", "app"),
 			}
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(repos)
+			mustEncode(w, repos)
 		},
 		"/repos/org1/core/contents/go.mod": func(w http.ResponseWriter, r *http.Request) {
 			content := &github.RepositoryContent{
@@ -257,7 +265,7 @@ func TestBuilder_Build_MultipleOrgs(t *testing.T) {
 				Encoding: github.Ptr("base64"),
 			}
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(content)
+			mustEncode(w, content)
 		},
 		"/repos/org2/app/contents/go.mod": func(w http.ResponseWriter, r *http.Request) {
 			content := &github.RepositoryContent{
@@ -267,7 +275,7 @@ func TestBuilder_Build_MultipleOrgs(t *testing.T) {
 				Encoding: github.Ptr("base64"),
 			}
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(content)
+			mustEncode(w, content)
 		},
 	}
 
@@ -317,7 +325,7 @@ func TestBuilder_Build_ExternalDependency(t *testing.T) {
 				makeRepoResponse("testorg", "mycli"),
 			}
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(repos)
+			mustEncode(w, repos)
 		},
 		"/repos/testorg/mycli/contents/go.mod": func(w http.ResponseWriter, r *http.Request) {
 			content := &github.RepositoryContent{
@@ -328,7 +336,7 @@ func TestBuilder_Build_ExternalDependency(t *testing.T) {
 				Encoding: github.Ptr("base64"),
 			}
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(content)
+			mustEncode(w, content)
 		},
 	}
 
@@ -378,7 +386,7 @@ func TestBuilder_Build_WithCache(t *testing.T) {
 				makeRepoResponse("testorg", "cached"),
 			}
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(repos)
+			mustEncode(w, repos)
 		},
 		"/repos/testorg/cached/contents/go.mod": func(w http.ResponseWriter, r *http.Request) {
 			callCount++
@@ -387,7 +395,7 @@ func TestBuilder_Build_WithCache(t *testing.T) {
 				Encoding: github.Ptr("base64"),
 			}
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(content)
+			mustEncode(w, content)
 		},
 	}
 
@@ -441,7 +449,7 @@ func TestBuilder_Build_LanguageFilter(t *testing.T) {
 				makeRepoResponse("testorg", "goapp"),
 			}
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(repos)
+			mustEncode(w, repos)
 		},
 		"/repos/testorg/goapp/contents/go.mod": func(w http.ResponseWriter, r *http.Request) {
 			content := &github.RepositoryContent{
@@ -449,7 +457,7 @@ func TestBuilder_Build_LanguageFilter(t *testing.T) {
 				Encoding: github.Ptr("base64"),
 			}
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(content)
+			mustEncode(w, content)
 		},
 	}
 
