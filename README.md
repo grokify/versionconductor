@@ -53,6 +53,20 @@ Set your GitHub token:
 export GITHUB_TOKEN=ghp_your_token_here
 ```
 
+### Token Permissions
+
+For full functionality, your token needs:
+
+| Permission | Access | Purpose |
+|------------|--------|---------|
+| Pull requests | Read & Write | List, review, merge PRs |
+| Contents | Read & Write | Merge commits, delete branches |
+| Metadata | Read | Required baseline |
+| Actions | Read | Check CI status |
+| Releases | Read & Write | Create releases/tags |
+
+For scan-only (read-only), `repo` scope or just Pull requests + Metadata + Actions with Read access is sufficient.
+
 Scan for dependency PRs:
 
 ```bash
