@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/google/go-github/v84/github"
+	"github.com/google/go-github/v88/github"
 	"github.com/grokify/gogithub/auth"
 	"github.com/grokify/gogithub/release"
 	"github.com/grokify/gogithub/tag"
@@ -18,12 +18,15 @@ type GitHubReleaser struct {
 }
 
 // NewGitHubReleaser creates a new GitHub releaser.
-func NewGitHubReleaser(token string) *GitHubReleaser {
+func NewGitHubReleaser(token string) (*GitHubReleaser, error) {
 	ctx := context.Background()
-	client := auth.NewGitHubClient(ctx, token)
+	client, err := auth.NewGitHubClient(ctx, token)
+	if err != nil {
+		return nil, err
+	}
 	return &GitHubReleaser{
 		client: client,
-	}
+	}, nil
 }
 
 // CreateRelease creates a new release for a repository.

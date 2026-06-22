@@ -45,6 +45,6 @@ func DefaultOptions() Options {
 }
 
 // NewGitHub creates a new GitHub releaser with the given token.
-func NewGitHub(token string) Releaser {
+func NewGitHub(token string) (Releaser, error) {
 	return NewGitHubReleaser(token)
 }
