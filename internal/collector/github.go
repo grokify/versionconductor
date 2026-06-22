@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/go-github/v84/github"
+	"github.com/google/go-github/v88/github"
 	"github.com/grokify/gogithub/auth"
 	"github.com/grokify/gogithub/checks"
 	"github.com/grokify/gogithub/pr"
@@ -22,12 +22,15 @@ type GitHubCollector struct {
 }
 
 // NewGitHubCollector creates a new GitHub collector.
-func NewGitHubCollector(token string) *GitHubCollector {
+func NewGitHubCollector(token string) (*GitHubCollector, error) {
 	ctx := context.Background()
-	client := auth.NewGitHubClient(ctx, token)
+	client, err := auth.NewGitHubClient(ctx, token)
+	if err != nil {
+		return nil, err
+	}
 	return &GitHubCollector{
 		client: client,
-	}
+	}, nil
 }
 
 // ListRepos returns repositories matching the filter criteria.

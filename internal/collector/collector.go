@@ -31,6 +31,6 @@ type Collector interface {
 }
 
 // NewGitHub creates a new GitHub collector with the given token.
-func NewGitHub(token string) Collector {
+func NewGitHub(token string) (Collector, error) {
 	return NewGitHubCollector(token)
 }
