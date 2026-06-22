@@ -80,7 +80,10 @@ func runScan(cmd *cobra.Command, args []string) error {
 	verbose := viper.GetBool("verbose")
 
 	// Create collector
-	coll := collector.NewGitHub(token)
+	coll, err := collector.NewGitHub(token)
+	if err != nil {
+		return fmt.Errorf("creating collector: %w", err)
+	}
 
 	// Build filters
 	repoFilter := model.RepoFilter{

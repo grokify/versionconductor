@@ -190,7 +190,10 @@ func runGraphBuild(cmd *cobra.Command, args []string) error {
 	}
 
 	// Build graph
-	builder := graph.NewBuilder(token)
+	builder, err := graph.NewBuilder(token)
+	if err != nil {
+		return fmt.Errorf("failed to create graph builder: %w", err)
+	}
 	g, err := builder.Build(ctx, portfolio)
 	if err != nil {
 		return fmt.Errorf("failed to build graph: %w", err)
@@ -465,10 +468,13 @@ func loadOrBuildGraph(ctx context.Context) (graph.Graph, error) {
 	}
 
 	// Build with configuration
-	builder := graph.NewBuilderWithConfig(graph.BuilderConfig{
+	builder, err := graph.NewBuilderWithConfig(graph.BuilderConfig{
 		Token: token,
 		Cache: cache,
 	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to create graph builder: %w", err)
+	}
 
 	return builder.Build(ctx, portfolio)
 }

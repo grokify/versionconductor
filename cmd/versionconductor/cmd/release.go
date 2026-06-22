@@ -93,8 +93,14 @@ func runRelease(cmd *cobra.Command, args []string) error {
 	maxReleases := viper.GetInt("release.max-releases")
 
 	// Create collector and releaser
-	coll := collector.NewGitHub(token)
-	rel := releaser.NewGitHub(token)
+	coll, err := collector.NewGitHub(token)
+	if err != nil {
+		return fmt.Errorf("creating collector: %w", err)
+	}
+	rel, err := releaser.NewGitHub(token)
+	if err != nil {
+		return fmt.Errorf("creating releaser: %w", err)
+	}
 
 	// Build filters
 	repoFilter := model.RepoFilter{

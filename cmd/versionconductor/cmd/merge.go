@@ -98,8 +98,14 @@ func runMerge(cmd *cobra.Command, args []string) error {
 	}
 
 	// Create collector and merger
-	coll := collector.NewGitHub(token)
-	merg := merger.NewGitHub(token)
+	coll, err := collector.NewGitHub(token)
+	if err != nil {
+		return fmt.Errorf("creating collector: %w", err)
+	}
+	merg, err := merger.NewGitHub(token)
+	if err != nil {
+		return fmt.Errorf("creating merger: %w", err)
+	}
 
 	// Build filters
 	repoFilter := model.RepoFilter{
