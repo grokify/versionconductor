@@ -57,6 +57,6 @@ func DefaultOptions() Options {
 }
 
 // NewGitHub creates a new GitHub merger with the given token.
-func NewGitHub(token string) Merger {
+func NewGitHub(token string) (Merger, error) {
 	return NewGitHubMerger(token)
 }

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/google/go-github/v84/github"
+	"github.com/google/go-github/v88/github"
 	"github.com/grokify/gogithub/auth"
 	"github.com/grokify/gogithub/pr"
 	"github.com/grokify/gogithub/repo"
@@ -18,12 +18,15 @@ type GitHubMerger struct {
 }
 
 // NewGitHubMerger creates a new GitHub merger.
-func NewGitHubMerger(token string) *GitHubMerger {
+func NewGitHubMerger(token string) (*GitHubMerger, error) {
 	ctx := context.Background()
-	client := auth.NewGitHubClient(ctx, token)
+	client, err := auth.NewGitHubClient(ctx, token)
+	if err != nil {
+		return nil, err
+	}
 	return &GitHubMerger{
 		client: client,
-	}
+	}, nil
 }
 
 // MergePR merges a pull request using the specified strategy.
