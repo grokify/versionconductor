@@ -226,11 +226,15 @@ type CachedBuilder struct {
 }
 
 // NewCachedBuilder creates a new builder with caching.
-func NewCachedBuilder(token string, cache *Cache) *CachedBuilder {
-	return &CachedBuilder{
-		builder: NewBuilder(token),
-		cache:   cache,
+func NewCachedBuilder(token string, cache *Cache) (*CachedBuilder, error) {
+	builder, err := NewBuilder(token)
+	if err != nil {
+		return nil, err
 	}
+	return &CachedBuilder{
+		builder: builder,
+		cache:   cache,
+	}, nil
 }
 
 // Build constructs a dependency graph with caching.

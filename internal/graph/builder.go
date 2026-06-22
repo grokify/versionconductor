@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/go-github/v84/github"
+	"github.com/google/go-github/v88/github"
 	"github.com/grokify/mogo/net/http/retryhttp"
 	"github.com/plexusone/versionconductor/pkg/model"
 )
@@ -37,12 +37,12 @@ type BuilderConfig struct {
 }
 
 // NewBuilder creates a new graph builder with GitHub authentication.
-func NewBuilder(token string) *Builder {
+func NewBuilder(token string) (*Builder, error) {
 	return NewBuilderWithConfig(BuilderConfig{Token: token})
 }
 
 // NewBuilderWithConfig creates a new graph builder with configuration.
-func NewBuilderWithConfig(cfg BuilderConfig) *Builder {
+func NewBuilderWithConfig(cfg BuilderConfig) (*Builder, error) {
 	// Create HTTP client with retry transport
 	retryOpts := []retryhttp.Option{}
 
@@ -58,15 +58,19 @@ func NewBuilderWithConfig(cfg BuilderConfig) *Builder {
 	httpClient := &http.Client{Transport: rt}
 
 	// Create GitHub client with retry-enabled HTTP client
-	client := github.NewClient(httpClient)
+	opts := []github.ClientOptionsFunc{github.WithHTTPClient(httpClient)}
 	if cfg.Token != "" {
-		client = client.WithAuthToken(cfg.Token)
+		opts = append(opts, github.WithAuthToken(cfg.Token))
+	}
+	client, err := github.NewClient(opts...)
+	if err != nil {
+		return nil, fmt.Errorf("creating GitHub client: %w", err)
 	}
 
 	return &Builder{
 		client: client,
 		cache:  cfg.Cache,
-	}
+	}, nil
 }
 
 // Build constructs a dependency graph from the portfolio configuration.
