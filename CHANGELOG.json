@@ -7,6 +7,30 @@
   "maintainers": ["plexusone"],
   "releases": [
     {
+      "version": "v0.3.0",
+      "date": "2026-06-22",
+      "highlights": [
+        { "description": "Upgrade to go-github v88 for latest GitHub API support" },
+        { "description": "Improved error handling with constructor error returns" }
+      ],
+      "breaking": [
+        { "description": "`collector.NewGitHub` and `collector.NewGitHubCollector` now return `(T, error)`", "commit": "209a5bb" },
+        { "description": "`merger.NewGitHub` and `merger.NewGitHubMerger` now return `(T, error)`", "commit": "5b8d402" },
+        { "description": "`releaser.NewGitHub` and `releaser.NewGitHubReleaser` now return `(T, error)`", "commit": "81d5f2f" },
+        { "description": "`graph.NewBuilder`, `graph.NewBuilderWithConfig`, and `graph.NewCachedBuilder` now return `(T, error)`", "commit": "acf5489" }
+      ],
+      "changed": [
+        { "description": "Graph builder uses functional options pattern for GitHub client creation", "commit": "acf5489" },
+        { "description": "Commands updated to handle constructor errors", "commit": "129db39" }
+      ],
+      "testing": [
+        { "description": "Integration tests updated for go-github v88 API (WithEnterpriseURLs, /api/v3/ paths)", "commit": "69561d6" }
+      ],
+      "dependencies": [
+        { "description": "Upgrade `github.com/google/go-github` from v84 to v88", "commit": "3e0ad95" }
+      ]
+    },
+    {
       "version": "v0.2.0",
       "date": "2026-04-25",
       "highlights": [
