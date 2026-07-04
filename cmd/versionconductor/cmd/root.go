@@ -1,15 +1,24 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
+	"log/slog"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/plexusone/versionconductor/internal/observability"
 )
 
-var cfgFile string
+var (
+	cfgFile string
+	obs     *observability.Observability
+)
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -28,7 +37,65 @@ Part of the DevOpsOrchestra suite alongside PipelineConductor.`,
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 func Execute() error {
-	return rootCmd.Execute()
+	// Set up signal handling for graceful shutdown
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer cancel()
+
+	// Initialize observability after config is loaded
+	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
+		return initObservability()
+	}
+
+	// Ensure observability is shut down
+	rootCmd.PersistentPostRunE = func(cmd *cobra.Command, args []string) error {
+		if obs != nil {
+			return obs.Shutdown(ctx)
+		}
+		return nil
+	}
+
+	return rootCmd.ExecuteContext(ctx)
+}
+
+// initObservability initializes the observability stack.
+func initObservability() error {
+	cfg := observability.Config{
+		ServiceName:    "versionconductor",
+		ServiceVersion: Version,
+		Verbose:        viper.GetBool("verbose"),
+		Provider:       viper.GetString("otel-provider"),
+		Endpoint:       viper.GetString("otel-endpoint"),
+		APIKey:         viper.GetString("otel-api-key"),
+		Disabled:       !viper.GetBool("otel-enabled"),
+	}
+
+	if cfg.Verbose {
+		cfg.LogLevel = slog.LevelDebug
+	}
+
+	var err error
+	obs, err = observability.New(cfg)
+	if err != nil {
+		return fmt.Errorf("initializing observability: %w", err)
+	}
+
+	// Set as default logger
+	slog.SetDefault(obs.Logger())
+
+	return nil
+}
+
+// GetLogger returns the configured logger.
+func GetLogger() *slog.Logger {
+	if obs != nil {
+		return obs.Logger()
+	}
+	return slog.Default()
+}
+
+// GetContext returns a context with the logger attached.
+func GetContext(ctx context.Context) context.Context {
+	return observability.WithLogger(ctx, GetLogger())
 }
 
 func init() {
@@ -42,6 +109,12 @@ func init() {
 	rootCmd.PersistentFlags().Bool("dry-run", false, "Show what would happen without making changes")
 	rootCmd.PersistentFlags().Bool("verbose", false, "Enable verbose output")
 
+	// Observability flags
+	rootCmd.PersistentFlags().Bool("otel-enabled", false, "Enable OpenTelemetry observability")
+	rootCmd.PersistentFlags().String("otel-provider", "otlp", "Observability provider: otlp, newrelic, datadog")
+	rootCmd.PersistentFlags().String("otel-endpoint", "", "OTLP endpoint (e.g., localhost:4317)")
+	rootCmd.PersistentFlags().String("otel-api-key", "", "API key for cloud providers")
+
 	// Bind flags to viper
 	_ = viper.BindPFlag("orgs", rootCmd.PersistentFlags().Lookup("orgs"))
 	_ = viper.BindPFlag("repos", rootCmd.PersistentFlags().Lookup("repos"))
@@ -49,6 +122,10 @@ func init() {
 	_ = viper.BindPFlag("format", rootCmd.PersistentFlags().Lookup("format"))
 	_ = viper.BindPFlag("dry-run", rootCmd.PersistentFlags().Lookup("dry-run"))
 	_ = viper.BindPFlag("verbose", rootCmd.PersistentFlags().Lookup("verbose"))
+	_ = viper.BindPFlag("otel-enabled", rootCmd.PersistentFlags().Lookup("otel-enabled"))
+	_ = viper.BindPFlag("otel-provider", rootCmd.PersistentFlags().Lookup("otel-provider"))
+	_ = viper.BindPFlag("otel-endpoint", rootCmd.PersistentFlags().Lookup("otel-endpoint"))
+	_ = viper.BindPFlag("otel-api-key", rootCmd.PersistentFlags().Lookup("otel-api-key"))
 }
 
 // initConfig reads in config file and ENV variables if set.
