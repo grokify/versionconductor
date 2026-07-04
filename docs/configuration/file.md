@@ -2,6 +2,20 @@
 
 VersionConductor can be configured via a YAML file.
 
+## JSON Schema
+
+A JSON Schema is available for IDE auto-completion and validation:
+
+```yaml
+# .versionconductor.yaml
+# yaml-language-server: $schema=https://raw.githubusercontent.com/plexusone/versionconductor/main/configs/schema/versionconductor.schema.json
+
+orgs:
+  - myorg
+```
+
+The schema is located at `configs/schema/versionconductor.schema.json`.
+
 ## File Locations
 
 Configuration is loaded from (in order of precedence):
@@ -163,6 +177,27 @@ graph:
     ttl: 24h
 ```
 
+### observability
+
+OpenTelemetry observability settings:
+
+```yaml
+observability:
+  enabled: true                    # Enable telemetry collection
+  provider: otlp                   # otlp, newrelic, datadog, dynatrace
+  endpoint: localhost:4317         # OTLP endpoint
+  api-key: ${NEWRELIC_LICENSE_KEY} # For cloud providers
+```
+
+**Supported providers:**
+
+| Provider | Endpoint Format | API Key |
+|----------|-----------------|---------|
+| `otlp` | `host:port` (gRPC) | Optional |
+| `newrelic` | Auto-configured | Required (`NEWRELIC_LICENSE_KEY`) |
+| `datadog` | Via DD Agent | Optional |
+| `dynatrace` | `https://{id}.live.dynatrace.com/api/v2/otlp` | Required |
+
 ## Environment Variables
 
 All settings can be overridden with environment variables:
@@ -172,6 +207,10 @@ All settings can be overridden with environment variables:
 | `token` | `GITHUB_TOKEN` |
 | `merge.profile` | `VERSIONCONDUCTOR_PROFILE` |
 | `output.format` | `VERSIONCONDUCTOR_FORMAT` |
+| `observability.enabled` | `VERSIONCONDUCTOR_OTEL_ENABLED` |
+| `observability.provider` | `VERSIONCONDUCTOR_OTEL_PROVIDER` |
+| `observability.endpoint` | `VERSIONCONDUCTOR_OTEL_ENDPOINT` |
+| `observability.api-key` | `VERSIONCONDUCTOR_OTEL_API_KEY` |
 
 ## Precedence
 

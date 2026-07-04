@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=../schema/versionconductor.schema.json
+#
+# Full example configuration for VersionConductor
+# Copy to ~/.versionconductor.yaml or ./.versionconductor.yaml
+
+# Target organizations to scan
+orgs:
+  - myorg
+  - anotherorg
+
+# Or specific repositories (owner/repo format)
+# repos:
+#   - myorg/repo1
+#   - myorg/repo2
+
+# Default output format
+format: table
+
+# Enable verbose (debug-level) logging
+verbose: false
+
+# Preview changes without making them
+dry-run: false
+
+# Default merge profile
+profile: quarantine
+
+# Allowed PR authors for auto-merge
+authors:
+  allowed:
+    - dependabot[bot]
+    - renovate[bot]
+
+# Merge behavior
+merge:
+  strategy: squash
+  delete-branch: true
+  max-per-run: 5
+
+# Release creation
+release:
+  prefix: v
+  generate-notes: true
+  draft: false
+  min-prs: 1
+
+# Cedar policy configuration
+policies:
+  path: ./policies/go/
+  profile: quarantine
+
+# Repository filtering
+filters:
+  include-archived: false
+  include-private: true
+  include-forks: false
+  languages:
+    - Go
+  exclude-repos:
+    - myorg/legacy-repo
+
+# OpenTelemetry observability (optional)
+observability:
+  enabled: false
+  provider: otlp
+  endpoint: localhost:4317
+  # api-key: ${NEWRELIC_LICENSE_KEY}  # For cloud providers

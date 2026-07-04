@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/plexusone/versionconductor/configs/schema/versionconductor.schema.json",
+  "title": "VersionConductor Configuration",
+  "description": "Configuration schema for .versionconductor.yaml",
+  "type": "object",
+  "properties": {
+    "orgs": {
+      "type": "array",
+      "description": "GitHub organizations to scan for dependency PRs",
+      "items": {
+        "type": "string"
+      },
+      "examples": [["plexusone", "myorg"]]
+    },
+    "repos": {
+      "type": "array",
+      "description": "Specific repositories to scan (owner/repo format)",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+$"
+      },
+      "examples": [["plexusone/versionconductor", "plexusone/omnillm"]]
+    },
+    "token": {
+      "type": "string",
+      "description": "GitHub personal access token (prefer GITHUB_TOKEN env var)"
+    },
+    "format": {
+      "type": "string",
+      "description": "Default output format",
+      "enum": ["table", "json", "markdown", "csv"],
+      "default": "table"
+    },
+    "dry-run": {
+      "type": "boolean",
+      "description": "Preview changes without making them",
+      "default": false
+    },
+    "verbose": {
+      "type": "boolean",
+      "description": "Enable verbose (debug-level) logging",
+      "default": false
+    },
+    "profile": {
+      "type": "string",
+      "description": "Default merge profile",
+      "enum": ["aggressive", "balanced", "conservative", "quarantine"],
+      "default": "quarantine"
+    },
+    "authors": {
+      "type": "object",
+      "description": "PR author configuration",
+      "properties": {
+        "allowed": {
+          "type": "array",
+          "description": "Allowed PR authors for auto-merge",
+          "items": {
+            "type": "string"
+          },
+          "default": ["dependabot[bot]", "renovate[bot]"]
+        }
+      }
+    },
+    "merge": {
+      "type": "object",
+      "description": "Merge behavior configuration",
+      "properties": {
+        "strategy": {
+          "type": "string",
+          "description": "Default merge strategy",
+          "enum": ["merge", "squash", "rebase"],
+          "default": "squash"
+        },
+        "delete-branch": {
+          "type": "boolean",
+          "description": "Delete PR branch after merge",
+          "default": true
+        },
+        "max-per-run": {
+          "type": "integer",
+          "description": "Maximum PRs to merge per run",
+          "minimum": 1,
+          "default": 5
+        }
+      }
+    },
+    "release": {
+      "type": "object",
+      "description": "Release creation configuration",
+      "properties": {
+        "prefix": {
+          "type": "string",
+          "description": "Version tag prefix",
+          "default": "v"
+        },
+        "generate-notes": {
+          "type": "boolean",
+          "description": "Use GitHub's auto-generated release notes",
+          "default": true
+        },
+        "draft": {
+          "type": "boolean",
+          "description": "Create releases as drafts",
+          "default": false
+        },
+        "min-prs": {
+          "type": "integer",
+          "description": "Minimum merged PRs before creating release",
+          "minimum": 1,
+          "default": 1
+        }
+      }
+    },
+    "policies": {
+      "type": "object",
+      "description": "Cedar policy configuration",
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Path to Cedar policy files or directory"
+        },
+        "profile": {
+          "type": "string",
+          "description": "Default policy profile",
+          "default": "quarantine"
+        }
+      }
+    },
+    "filters": {
+      "type": "object",
+      "description": "Repository filtering options",
+      "properties": {
+        "include-archived": {
+          "type": "boolean",
+          "description": "Include archived repositories",
+          "default": false
+        },
+        "include-private": {
+          "type": "boolean",
+          "description": "Include private repositories",
+          "default": true
+        },
+        "include-forks": {
+          "type": "boolean",
+          "description": "Include forked repositories",
+          "default": false
+        },
+        "languages": {
+          "type": "array",
+          "description": "Filter by repository language",
+          "items": {
+            "type": "string"
+          }
+        },
+        "exclude-repos": {
+          "type": "array",
+          "description": "Repositories to exclude (owner/repo format)",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "observability": {
+      "type": "object",
+      "description": "OpenTelemetry observability configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable telemetry collection",
+          "default": false
+        },
+        "provider": {
+          "type": "string",
+          "description": "Observability provider",
+          "enum": ["otlp", "newrelic", "datadog", "dynatrace"],
+          "default": "otlp"
+        },
+        "endpoint": {
+          "type": "string",
+          "description": "OTLP endpoint (e.g., localhost:4317)"
+        },
+        "api-key": {
+          "type": "string",
+          "description": "API key for cloud providers (New Relic, Datadog)"
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}
