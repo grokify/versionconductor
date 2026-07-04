@@ -1,5 +1,7 @@
 package model
 
+import "fmt"
+
 // PolicyContext provides context for Cedar policy evaluation.
 // This struct is serialized to JSON for Cedar entity evaluation.
 type PolicyContext struct {
@@ -7,6 +9,17 @@ type PolicyContext struct {
 	PR         PRContext         `json:"pr"`
 	Dependency DependencyContext `json:"dependency"`
 	CI         CIContext         `json:"ci"`
+	GoMod      GoModContext      `json:"goMod"`
+	Profile    ProfileContext    `json:"profile"`
+}
+
+// ProfileContext contains merge profile settings for policy evaluation.
+// This allows Cedar policies to reference profile-configured thresholds.
+type ProfileContext struct {
+	Name         string `json:"name"`
+	MinAgeHours  int    `json:"minAgeHours"`
+	MinAgeDays   int    `json:"minAgeDays"`
+	MaxPRsPerRun int    `json:"maxPRsPerRun"`
 }
 
 // RepoContext contains repository information for policy evaluation.
@@ -34,6 +47,11 @@ type PRContext struct {
 	Draft        bool     `json:"draft"`
 	Labels       []string `json:"labels"`
 	HasConflicts bool     `json:"hasConflicts"`
+
+	// File gate fields
+	ChangedFiles    []string `json:"changedFiles"`
+	OnlyGoModFiles  bool     `json:"onlyGoModFiles"`
+	ChangedFileExts []string `json:"changedFileExts"`
 }
 
 // DependencyContext contains dependency update information for policy evaluation.
@@ -46,6 +64,27 @@ type DependencyContext struct {
 	IsMajor     bool   `json:"isMajor"`
 	IsMinor     bool   `json:"isMinor"`
 	IsPatch     bool   `json:"isPatch"`
+}
+
+// GoModContext contains go.mod-specific analysis for policy evaluation.
+// This is used to detect potentially dangerous changes beyond version bumps.
+type GoModContext struct {
+	// Directive changes
+	HasReplaceChange    bool `json:"hasReplaceChange"`
+	HasExcludeChange    bool `json:"hasExcludeChange"`
+	HasRetractChange    bool `json:"hasRetractChange"`
+	HasToolchainChange  bool `json:"hasToolchainChange"`
+	HasGoVersionChange  bool `json:"hasGoVersionChange"`
+	HasDirectiveChanges bool `json:"hasDirectiveChanges"` // any of the above
+
+	// Dependency changes
+	HasNewDirectDependency bool     `json:"hasNewDirectDependency"`
+	NewDirectDependencies  []string `json:"newDirectDependencies,omitempty"`
+	RemovedDependencies    []string `json:"removedDependencies,omitempty"`
+
+	// Version info
+	OldGoVersion string `json:"oldGoVersion,omitempty"`
+	NewGoVersion string `json:"newGoVersion,omitempty"`
 }
 
 // CIContext contains CI/test status for policy evaluation.
@@ -68,12 +107,93 @@ const (
 	PolicyActionRelease PolicyAction = "release"
 )
 
+// DecisionOutcome represents the type of action to take based on policy evaluation.
+type DecisionOutcome string
+
+const (
+	// DecisionAutoApprove indicates the PR should be approved but not merged.
+	DecisionAutoApprove DecisionOutcome = "AUTO_APPROVE"
+
+	// DecisionAutoMerge indicates the PR should be approved and auto-merge enabled.
+	DecisionAutoMerge DecisionOutcome = "AUTO_MERGE"
+
+	// DecisionQueueForMerge indicates the PR should be added to merge queue.
+	DecisionQueueForMerge DecisionOutcome = "QUEUE_FOR_MERGE"
+
+	// DecisionManualReview indicates the PR needs human review.
+	DecisionManualReview DecisionOutcome = "MANUAL_REVIEW"
+
+	// DecisionSecurityReview indicates the PR needs security team review.
+	DecisionSecurityReview DecisionOutcome = "SECURITY_TEAM_REVIEW"
+
+	// DecisionReject indicates the PR should not be merged.
+	DecisionReject DecisionOutcome = "REJECT"
+)
+
+// RequiredAction represents an action that should be taken on the PR.
+type RequiredAction string
+
+const (
+	ActionApprove         RequiredAction = "approve"
+	ActionEnableAutoMerge RequiredAction = "enable_auto_merge"
+	ActionAddToQueue      RequiredAction = "add_to_queue"
+	ActionAddLabel        RequiredAction = "add_label"
+	ActionComment         RequiredAction = "comment"
+	ActionRequestReview   RequiredAction = "request_review"
+)
+
 // PolicyDecision represents the result of policy evaluation.
 type PolicyDecision struct {
-	Allowed  bool     `json:"allowed"`
-	Action   string   `json:"action"`
-	Reasons  []string `json:"reasons,omitempty"`
+	// Allowed indicates whether the action is permitted.
+	Allowed bool `json:"allowed"`
+
+	// Action is the evaluated action (merge, review, release).
+	Action string `json:"action"`
+
+	// Outcome specifies what action to take (AUTO_MERGE, MANUAL_REVIEW, etc.).
+	Outcome DecisionOutcome `json:"outcome"`
+
+	// RequiredActions lists the specific actions to perform.
+	RequiredActions []RequiredAction `json:"requiredActions,omitempty"`
+
+	// Reasons explains why the decision was made.
+	Reasons []string `json:"reasons,omitempty"`
+
+	// Policies lists the policy IDs that contributed to the decision.
 	Policies []string `json:"policies,omitempty"`
+
+	// Evidence summarizes the context used for the decision.
+	Evidence *DecisionEvidence `json:"evidence,omitempty"`
+}
+
+// DecisionEvidence captures the key facts used in the decision.
+type DecisionEvidence struct {
+	Author       string `json:"author"`
+	IsBot        bool   `json:"isBot"`
+	PRAge        string `json:"prAge"`
+	UpdateType   string `json:"updateType"`
+	Ecosystem    string `json:"ecosystem"`
+	FilesChanged string `json:"filesChanged"`
+	CIStatus     string `json:"ciStatus"`
+	Directives   string `json:"directives"`
+}
+
+// Summary returns a human-readable summary of the decision.
+func (d *PolicyDecision) Summary() string {
+	if d.Allowed {
+		return string(d.Outcome) + ": " + d.joinReasons()
+	}
+	return "DENIED: " + d.joinReasons()
+}
+
+func (d *PolicyDecision) joinReasons() string {
+	if len(d.Reasons) == 0 {
+		return "no specific reason"
+	}
+	if len(d.Reasons) == 1 {
+		return d.Reasons[0]
+	}
+	return fmt.Sprintf("%s (+%d more)", d.Reasons[0], len(d.Reasons)-1)
 }
 
 // MergeProfile defines a set of merge policies and behaviors.
@@ -83,6 +203,7 @@ type MergeProfile struct {
 
 	// Timing controls
 	MinAgeHours int `json:"minAgeHours" yaml:"minAgeHours"`
+	MinAgeDays  int `json:"minAgeDays" yaml:"minAgeDays"` // N+5 quarantine period
 	MaxAgeHours int `json:"maxAgeHours" yaml:"maxAgeHours"`
 
 	// Update type controls
