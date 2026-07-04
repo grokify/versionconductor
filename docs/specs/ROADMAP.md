@@ -27,7 +27,7 @@ Add comprehensive unit tests for packages with 0% coverage:
 
 ### 2. Rate Limit Handling
 
-**Status:** Not Started
+**Status:** Complete
 
 Add GitHub API rate limit awareness with exponential backoff:
 
@@ -219,10 +219,10 @@ Add caching for GitHub API responses in collector:
 ## Implementation Order
 
 1. **Phase 1 - Foundation** (High Priority)
-   - [ ] Unit tests for collector
-   - [ ] Unit tests for merger
-   - [ ] Unit tests for releaser
-   - [ ] Rate limit handling
+   - [x] Unit tests for collector (43.8% coverage)
+   - [x] Unit tests for merger (4.3% coverage)
+   - [x] Unit tests for releaser (73.8% coverage)
+   - [x] Rate limit handling
 
 2. **Phase 2 - Observability** (Medium Priority)
    - [ ] slog structured logging via omniobserve
