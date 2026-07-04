@@ -41,19 +41,13 @@ Use the `versionconductor[bot]` identity for clearer audit trails.
 
 **Setup:**
 
-1. Create a GitHub App named `versionconductor` with permissions:
-   - Pull requests: read/write
-   - Contents: read
-   - Checks: read
-   - Commit statuses: read
-   - Metadata: read
+See the [GitHub App Setup Guide](github-app.md) for detailed instructions.
 
-2. Install the app on your organization/repositories
+Quick summary:
 
-3. Add secrets to your repository:
-   - `VERSIONCONDUCTOR_APP_ID` - The App ID
-   - `VERSIONCONDUCTOR_PRIVATE_KEY` - The private key (PEM format)
-
+1. Create a GitHub App named `versionconductor`
+2. Install the app on your organization
+3. Add secrets: `VERSIONCONDUCTOR_APP_ID` and `VERSIONCONDUCTOR_PRIVATE_KEY`
 4. Configure the workflow:
 
 ```yaml

@@ -60,6 +60,7 @@ nav:
       - Config File: configuration/file.md
   - GitHub Action:
       - Setup: github-action/setup.md
+      - GitHub App: github-action/github-app.md
       - Reusable Workflow: github-action/reusable.md
       - Examples: github-action/examples.md
   - Commands:
