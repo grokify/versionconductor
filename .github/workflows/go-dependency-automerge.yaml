@@ -1,3 +1,14 @@
+# Go Dependency Auto-Merge
+#
+# This workflow automatically approves and merges Go dependency updates
+# from Dependabot or Renovate after a 5-day quarantine period.
+#
+# Authentication options (in priority order):
+# 1. GitHub App (versionconductor[bot]) - Best for audit trail
+#    Set VERSIONCONDUCTOR_APP_ID and VERSIONCONDUCTOR_PRIVATE_KEY secrets
+# 2. Custom token - Pass a PAT via the 'token' secret
+# 3. Default GITHUB_TOKEN - Automatic, but limited audit trail
+
 name: Go Dependency Auto-Merge
 
 on:
@@ -31,4 +42,11 @@ jobs:
       min-age-days: 5
       allowed-authors: 'dependabot[bot],renovate[bot]'
       dry-run: ${{ inputs.dry-run || false }}
-    secrets: inherit
+    secrets:
+      # Option 1: GitHub App credentials (recommended)
+      # Creates versionconductor[bot] identity for clearer audit trail
+      app-id: ${{ secrets.VERSIONCONDUCTOR_APP_ID }}
+      app-private-key: ${{ secrets.VERSIONCONDUCTOR_PRIVATE_KEY }}
+      # Option 2: Custom token (uncomment if using PAT instead)
+      # token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
+      # Option 3: Default - uses GITHUB_TOKEN automatically (no config needed)
