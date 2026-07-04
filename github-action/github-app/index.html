@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://plexusone.github.io/versionconductor/releases/v0.3.0/">
+        <link rel="canonical" href="https://plexusone.github.io/versionconductor/github-action/github-app/">
       
       
-        <link rel="prev" href="../../commands/policy/">
+        <link rel="prev" href="../setup/">
       
       
-        <link rel="next" href="../v0.2.0/">
+        <link rel="next" href="../reusable/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>v0.3.0 - VersionConductor</title>
+        <title>GitHub App - VersionConductor</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#release-notes-v030" class="md-skip">
+        <a href="#creating-the-github-app" class="md-skip">
           Skip to content
         </a>
       
@@ -121,7 +121,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              v0.3.0
+              GitHub App
             
           </span>
         </div>
@@ -755,8 +755,10 @@
       
   
   
+    
   
   
+  
     
     
     
@@ -767,13 +769,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
           <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
@@ -794,7 +794,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -812,7 +812,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../github-action/setup/" class="md-nav__link">
+      <a href="../setup/" class="md-nav__link">
         
   
   
@@ -837,10 +837,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../github-action/github-app/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitHub App
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -856,6 +883,275 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#why-use-a-github-app" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why Use a GitHub App?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-create-the-app" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Create the App
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 1: Create the App">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-information" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Information
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#webhook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Webhook
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#permissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Permissions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#installation-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation Scope
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-note-the-app-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Note the App ID
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-3-generate-private-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Generate Private Key
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-4-install-the-app" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Install the App
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-5-add-secrets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: Add Secrets
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 5: Add Secrets">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#organization-level-secrets-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Organization-Level Secrets (Recommended)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repository-level-secrets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Repository-Level Secrets
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-6-configure-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 6: Configure Workflow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-7-verify-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 7: Verify Setup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#resource-not-accessible-by-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "Resource not accessible by integration"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#could-not-create-installation-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "Could not create installation token"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#app-not-appearing-in-pr-approvals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        App not appearing in PR approvals
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rotating-the-private-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rotating the Private Key
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#revoking-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Revoking Access
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next Steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -868,7 +1164,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../github-action/reusable/" class="md-nav__link">
+      <a href="../reusable/" class="md-nav__link">
         
   
   
@@ -896,7 +1192,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../github-action/examples/" class="md-nav__link">
+      <a href="../examples/" class="md-nav__link">
         
   
   
@@ -1157,8 +1453,6 @@
       
   
   
-    
-  
   
   
     
@@ -1171,11 +1465,13 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
         
           
           <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
@@ -1196,7 +1492,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_7">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1211,37 +1507,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    v0.3.0
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../releases/v0.3.0/" class="md-nav__link">
         
   
   
@@ -1257,153 +1526,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#highlights" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Highlights
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#breaking-changes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Breaking Changes
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Breaking Changes">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#collector-package" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Collector Package
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#merger-package" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Merger Package
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#releaser-package" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Releaser Package
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#graph-package" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Graph Package
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#migration-guide" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Migration Guide
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#installation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Installation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#dependencies" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Dependencies
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#whats-next" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What's Next
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1416,7 +1538,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../v0.2.0/" class="md-nav__link">
+      <a href="../../releases/v0.2.0/" class="md-nav__link">
         
   
   
@@ -1444,7 +1566,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../v0.1.0/" class="md-nav__link">
+      <a href="../../releases/v0.1.0/" class="md-nav__link">
         
   
   
@@ -1499,10 +1621,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#why-use-a-github-app" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Overview
+        Why Use a GitHub App?
       
     </span>
   </a>
@@ -1510,33 +1632,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#highlights" class="md-nav__link">
+  <a href="#step-1-create-the-app" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Highlights
+        Step 1: Create the App
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#breaking-changes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Breaking Changes
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Breaking Changes">
+    <nav class="md-nav" aria-label="Step 1: Create the App">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#collector-package" class="md-nav__link">
+  <a href="#basic-information" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Collector Package
+        Basic Information
       
     </span>
   </a>
@@ -1544,10 +1655,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#merger-package" class="md-nav__link">
+  <a href="#webhook" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Merger Package
+        Webhook
       
     </span>
   </a>
@@ -1555,10 +1666,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#releaser-package" class="md-nav__link">
+  <a href="#permissions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Releaser Package
+        Permissions
       
     </span>
   </a>
@@ -1566,10 +1677,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#graph-package" class="md-nav__link">
+  <a href="#installation-scope" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Graph Package
+        Installation Scope
       
     </span>
   </a>
@@ -1582,10 +1693,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#migration-guide" class="md-nav__link">
+  <a href="#step-2-note-the-app-id" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Migration Guide
+        Step 2: Note the App ID
       
     </span>
   </a>
@@ -1593,10 +1704,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#installation" class="md-nav__link">
+  <a href="#step-3-generate-private-key" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Installation
+        Step 3: Generate Private Key
       
     </span>
   </a>
@@ -1604,10 +1715,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#dependencies" class="md-nav__link">
+  <a href="#step-4-install-the-app" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Dependencies
+        Step 4: Install the App
       
     </span>
   </a>
@@ -1615,10 +1726,143 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#whats-next" class="md-nav__link">
+  <a href="#step-5-add-secrets" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What's Next
+        Step 5: Add Secrets
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 5: Add Secrets">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#organization-level-secrets-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Organization-Level Secrets (Recommended)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repository-level-secrets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Repository-Level Secrets
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-6-configure-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 6: Configure Workflow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-7-verify-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 7: Verify Setup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#resource-not-accessible-by-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "Resource not accessible by integration"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#could-not-create-installation-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "Could not create installation token"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#app-not-appearing-in-pr-approvals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        App not appearing in PR approvals
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rotating-the-private-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rotating the Private Key
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#revoking-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Revoking Access
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next Steps
       
     </span>
   </a>
@@ -1645,104 +1889,241 @@
   
 
 
-<h1 id="release-notes-v030">Release Notes: v0.3.0<a class="headerlink" href="#release-notes-v030" title="Permanent link">&para;</a></h1>
-<p><strong>Release Date:</strong> 2026-06-22</p>
-<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>VersionConductor v0.3.0 upgrades the GitHub API client to go-github v88, driven by the gogithub v0.13.0 dependency update. This release contains breaking API changes to constructor functions.</p>
-<h2 id="highlights">Highlights<a class="headerlink" href="#highlights" title="Permanent link">&para;</a></h2>
-<ul>
-<li><strong>go-github v88 Upgrade</strong> - Updated to latest GitHub API client version</li>
-<li><strong>Improved Error Handling</strong> - All constructors now return errors for better error propagation</li>
-</ul>
-<h2 id="breaking-changes">Breaking Changes<a class="headerlink" href="#breaking-changes" title="Permanent link">&para;</a></h2>
-<p>All constructor functions now return <code>(T, error)</code> instead of just <code>T</code>. Code using these functions must be updated to handle the returned error.</p>
-<h3 id="collector-package">Collector Package<a class="headerlink" href="#collector-package" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">// Before (v0.2.0)</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nx">coll</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">collector</span><span class="p">.</span><span class="nx">NewGitHub</span><span class="p">(</span><span class="nx">token</span><span class="p">)</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1">// After (v0.3.0)</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="nx">coll</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">collector</span><span class="p">.</span><span class="nx">NewGitHub</span><span class="p">(</span><span class="nx">token</span><span class="p">)</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">err</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">}</span>
-</code></pre></div>
-<h3 id="merger-package">Merger Package<a class="headerlink" href="#merger-package" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1">// Before (v0.2.0)</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nx">merg</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">merger</span><span class="p">.</span><span class="nx">NewGitHub</span><span class="p">(</span><span class="nx">token</span><span class="p">)</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1">// After (v0.3.0)</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="nx">merg</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">merger</span><span class="p">.</span><span class="nx">NewGitHub</span><span class="p">(</span><span class="nx">token</span><span class="p">)</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">err</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="p">}</span>
-</code></pre></div>
-<h3 id="releaser-package">Releaser Package<a class="headerlink" href="#releaser-package" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1">// Before (v0.2.0)</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nx">rel</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">releaser</span><span class="p">.</span><span class="nx">NewGitHub</span><span class="p">(</span><span class="nx">token</span><span class="p">)</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1">// After (v0.3.0)</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nx">rel</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">releaser</span><span class="p">.</span><span class="nx">NewGitHub</span><span class="p">(</span><span class="nx">token</span><span class="p">)</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">err</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="p">}</span>
-</code></pre></div>
-<h3 id="graph-package">Graph Package<a class="headerlink" href="#graph-package" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1">// Before (v0.2.0)</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nx">builder</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">graph</span><span class="p">.</span><span class="nx">NewBuilder</span><span class="p">(</span><span class="nx">token</span><span class="p">)</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="nx">builder</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">graph</span><span class="p">.</span><span class="nx">NewBuilderWithConfig</span><span class="p">(</span><span class="nx">cfg</span><span class="p">)</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="nx">cachedBuilder</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">graph</span><span class="p">.</span><span class="nx">NewCachedBuilder</span><span class="p">(</span><span class="nx">token</span><span class="p">,</span><span class="w"> </span><span class="nx">cache</span><span class="p">)</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="c1">// After (v0.3.0)</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="nx">builder</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">graph</span><span class="p">.</span><span class="nx">NewBuilder</span><span class="p">(</span><span class="nx">token</span><span class="p">)</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="nx">builder</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">graph</span><span class="p">.</span><span class="nx">NewBuilderWithConfig</span><span class="p">(</span><span class="nx">cfg</span><span class="p">)</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="nx">cachedBuilder</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">graph</span><span class="p">.</span><span class="nx">NewCachedBuilder</span><span class="p">(</span><span class="nx">token</span><span class="p">,</span><span class="w"> </span><span class="nx">cache</span><span class="p">)</span>
-</code></pre></div>
-<h2 id="migration-guide">Migration Guide<a class="headerlink" href="#migration-guide" title="Permanent link">&para;</a></h2>
-<ol>
-<li>Update all calls to constructor functions to handle the returned error</li>
-<li>Run <code>go build ./...</code> to identify all locations that need updates</li>
-<li>Add error handling at each call site</li>
-</ol>
-<h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>go<span class="w"> </span>install<span class="w"> </span>github.com/plexusone/versionconductor/cmd/versionconductor@v0.3.0
-</code></pre></div>
-<p>Or build from source:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/plexusone/versionconductor.git
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="nb">cd</span><span class="w"> </span>versionconductor
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>go<span class="w"> </span>build<span class="w"> </span>-o<span class="w"> </span>versionconductor<span class="w"> </span>./cmd/versionconductor
-</code></pre></div>
-<h2 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h2>
+<h1 id="creating-the-github-app">Creating the GitHub App<a class="headerlink" href="#creating-the-github-app" title="Permanent link">&para;</a></h1>
+<p>This guide walks through creating a GitHub App for the <code>versionconductor[bot]</code> identity.</p>
+<h2 id="why-use-a-github-app">Why Use a GitHub App?<a class="headerlink" href="#why-use-a-github-app" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Module</th>
-<th>Version</th>
-<th>Change</th>
+<th>Feature</th>
+<th>GITHUB_TOKEN</th>
+<th>GitHub App</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>github.com/google/go-github</code></td>
-<td>v88</td>
-<td>Upgraded from v84</td>
+<td>Identity</td>
+<td><code>github-actions[bot]</code></td>
+<td><code>versionconductor[bot]</code></td>
 </tr>
 <tr>
-<td><code>github.com/grokify/gogithub</code></td>
-<td>v0.13.0</td>
-<td>Unchanged</td>
+<td>Audit trail</td>
+<td>Generic</td>
+<td>Clear bot identity</td>
 </tr>
 <tr>
-<td><code>github.com/grokify/mogo</code></td>
-<td>v0.74.6</td>
-<td>Unchanged</td>
+<td>Token lifetime</td>
+<td>Job duration</td>
+<td>1 hour (renewable)</td>
+</tr>
+<tr>
+<td>Permissions</td>
+<td>Repository-scoped</td>
+<td>Fine-grained per installation</td>
+</tr>
+<tr>
+<td>Cross-repo</td>
+<td>No</td>
+<td>Yes (within installation)</td>
 </tr>
 </tbody>
 </table>
-<h2 id="whats-next">What's Next<a class="headerlink" href="#whats-next" title="Permanent link">&para;</a></h2>
+<h2 id="step-1-create-the-app">Step 1: Create the App<a class="headerlink" href="#step-1-create-the-app" title="Permanent link">&para;</a></h2>
+<p>Navigate to your organization's app settings:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>https://github.com/organizations/YOUR_ORG/settings/apps/new
+</code></pre></div>
+<p>Or: <strong>GitHub → Your Org → Settings → Developer settings → GitHub Apps → New GitHub App</strong></p>
+<h3 id="basic-information">Basic Information<a class="headerlink" href="#basic-information" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GitHub App name</strong></td>
+<td><code>versionconductor</code></td>
+</tr>
+<tr>
+<td><strong>Description</strong></td>
+<td>Automated dependency PR management</td>
+</tr>
+<tr>
+<td><strong>Homepage URL</strong></td>
+<td><code>https://github.com/YOUR_ORG/versionconductor</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="webhook">Webhook<a class="headerlink" href="#webhook" title="Permanent link">&para;</a></h3>
+<p>Uncheck <strong>Active</strong> - webhooks are not needed for this use case.</p>
+<h3 id="permissions">Permissions<a class="headerlink" href="#permissions" title="Permanent link">&para;</a></h3>
+<p>Configure these <strong>Repository permissions</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Permission</th>
+<th>Access</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Contents</strong></td>
+<td>Read</td>
+<td>Read go.mod/go.sum files</td>
+</tr>
+<tr>
+<td><strong>Metadata</strong></td>
+<td>Read</td>
+<td>Access repository metadata</td>
+</tr>
+<tr>
+<td><strong>Pull requests</strong></td>
+<td>Read and write</td>
+<td>Approve and merge PRs</td>
+</tr>
+<tr>
+<td><strong>Checks</strong></td>
+<td>Read</td>
+<td>Verify CI status</td>
+</tr>
+<tr>
+<td><strong>Commit statuses</strong></td>
+<td>Read</td>
+<td>Check commit statuses</td>
+</tr>
+</tbody>
+</table>
+<p>Leave all other permissions as "No access".</p>
+<h3 id="installation-scope">Installation Scope<a class="headerlink" href="#installation-scope" title="Permanent link">&para;</a></h3>
+<p>Select: <strong>Only on this account</strong></p>
+<p>This restricts the app to your organization only.</p>
+<h2 id="step-2-note-the-app-id">Step 2: Note the App ID<a class="headerlink" href="#step-2-note-the-app-id" title="Permanent link">&para;</a></h2>
+<p>After clicking "Create GitHub App", you'll see the app settings page.</p>
+<p>Note the <strong>App ID</strong> displayed near the top - you'll need this for the workflow.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>App ID: 123456
+</code></pre></div>
+<h2 id="step-3-generate-private-key">Step 3: Generate Private Key<a class="headerlink" href="#step-3-generate-private-key" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Scroll down to the <strong>Private keys</strong> section</li>
+<li>Click <strong>Generate a private key</strong></li>
+<li>A <code>.pem</code> file will download automatically</li>
+<li>Store this file securely - it cannot be recovered if lost</li>
+</ol>
+<div class="admonition warning">
+<p class="admonition-title">Private Key Security</p>
+<p>The private key grants full access as the app. Store it securely and never commit it to version control.</p>
+</div>
+<h2 id="step-4-install-the-app">Step 4: Install the App<a class="headerlink" href="#step-4-install-the-app" title="Permanent link">&para;</a></h2>
+<ol>
+<li>In the app settings, click <strong>Install App</strong> in the left sidebar</li>
+<li>Select your organization</li>
+<li>Choose installation scope:</li>
+<li><strong>All repositories</strong> - recommended for org-wide dependency management</li>
+<li><strong>Only select repositories</strong> - for limited rollout</li>
+<li>Click <strong>Install</strong></li>
+</ol>
+<h2 id="step-5-add-secrets">Step 5: Add Secrets<a class="headerlink" href="#step-5-add-secrets" title="Permanent link">&para;</a></h2>
+<p>Add the App ID and private key as secrets for your workflows.</p>
+<h3 id="organization-level-secrets-recommended">Organization-Level Secrets (Recommended)<a class="headerlink" href="#organization-level-secrets-recommended" title="Permanent link">&para;</a></h3>
+<p>Makes secrets available to all repositories in the organization:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Set App ID</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>gh<span class="w"> </span>secret<span class="w"> </span><span class="nb">set</span><span class="w"> </span>VERSIONCONDUCTOR_APP_ID<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span>--body<span class="w"> </span><span class="s2">&quot;123456&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span>--org<span class="w"> </span>YOUR_ORG<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span>--visibility<span class="w"> </span>all
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1"># Set private key from file</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>gh<span class="w"> </span>secret<span class="w"> </span><span class="nb">set</span><span class="w"> </span>VERSIONCONDUCTOR_PRIVATE_KEY<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">  </span>--org<span class="w"> </span>YOUR_ORG<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">  </span>--visibility<span class="w"> </span>all<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">  </span>&lt;<span class="w"> </span>/path/to/versionconductor.pem
+</code></pre></div>
+<h3 id="repository-level-secrets">Repository-Level Secrets<a class="headerlink" href="#repository-level-secrets" title="Permanent link">&para;</a></h3>
+<p>For individual repositories:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Set App ID</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>gh<span class="w"> </span>secret<span class="w"> </span><span class="nb">set</span><span class="w"> </span>VERSIONCONDUCTOR_APP_ID<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span>--body<span class="w"> </span><span class="s2">&quot;123456&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span>--repo<span class="w"> </span>YOUR_ORG/your-repo
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="c1"># Set private key from file</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>gh<span class="w"> </span>secret<span class="w"> </span><span class="nb">set</span><span class="w"> </span>VERSIONCONDUCTOR_PRIVATE_KEY<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span>--repo<span class="w"> </span>YOUR_ORG/your-repo<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">  </span>&lt;<span class="w"> </span>/path/to/versionconductor.pem
+</code></pre></div>
+<h2 id="step-6-configure-workflow">Step 6: Configure Workflow<a class="headerlink" href="#step-6-configure-workflow" title="Permanent link">&para;</a></h2>
+<p>Update your workflow to use the GitHub App credentials:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nt">jobs</span><span class="p">:</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">auto-merge</span><span class="p">:</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">plexusone/.github/.github/workflows/go-dependency-automerge.yaml@main</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="nt">with</span><span class="p">:</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">      </span><span class="nt">profile</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;quarantine&#39;</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">      </span><span class="nt">min-age-days</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="nt">secrets</span><span class="p">:</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">      </span><span class="nt">app-id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.VERSIONCONDUCTOR_APP_ID }}</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">      </span><span class="nt">app-private-key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.VERSIONCONDUCTOR_PRIVATE_KEY }}</span>
+</code></pre></div>
+<h2 id="step-7-verify-setup">Step 7: Verify Setup<a class="headerlink" href="#step-7-verify-setup" title="Permanent link">&para;</a></h2>
+<p>Trigger a test run to verify the app is working:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>gh<span class="w"> </span>workflow<span class="w"> </span>run<span class="w"> </span>go-dependency-automerge.yaml<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span>--repo<span class="w"> </span>YOUR_ORG/your-repo<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span>-f<span class="w"> </span>dry-run<span class="o">=</span><span class="nb">true</span>
+</code></pre></div>
+<p>Check the workflow logs. You should see:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>Using GitHub App token (versionconductor[bot])
+</code></pre></div>
+<p>PR approvals will now show as coming from <code>versionconductor[bot]</code>.</p>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="resource-not-accessible-by-integration">"Resource not accessible by integration"<a class="headerlink" href="#resource-not-accessible-by-integration" title="Permanent link">&para;</a></h3>
+<p>The app doesn't have the required permissions. Check:</p>
+<ol>
+<li>App has "Pull requests: Read and write" permission</li>
+<li>App is installed on the repository</li>
+<li>Secrets are correctly configured</li>
+</ol>
+<h3 id="could-not-create-installation-token">"Could not create installation token"<a class="headerlink" href="#could-not-create-installation-token" title="Permanent link">&para;</a></h3>
+<p>The private key or app ID is incorrect. Verify:</p>
+<ol>
+<li>App ID matches the one shown in app settings</li>
+<li>Private key is the complete <code>.pem</code> file contents</li>
+<li>No extra whitespace in secrets</li>
+</ol>
+<h3 id="app-not-appearing-in-pr-approvals">App not appearing in PR approvals<a class="headerlink" href="#app-not-appearing-in-pr-approvals" title="Permanent link">&para;</a></h3>
+<p>The workflow may be falling back to <code>GITHUB_TOKEN</code>. Check:</p>
+<ol>
+<li>Both <code>app-id</code> and <code>app-private-key</code> secrets are set</li>
+<li>Secrets are available to the workflow (check visibility settings)</li>
+<li>Workflow logs show "Using GitHub App token"</li>
+</ol>
+<h2 id="rotating-the-private-key">Rotating the Private Key<a class="headerlink" href="#rotating-the-private-key" title="Permanent link">&para;</a></h2>
+<p>To rotate the private key:</p>
+<ol>
+<li>Go to app settings → Private keys</li>
+<li>Click <strong>Generate a private key</strong> (creates new key)</li>
+<li>Update the <code>VERSIONCONDUCTOR_PRIVATE_KEY</code> secret</li>
+<li>Verify workflows still work</li>
+<li>Delete the old key from app settings</li>
+</ol>
+<h2 id="revoking-access">Revoking Access<a class="headerlink" href="#revoking-access" title="Permanent link">&para;</a></h2>
+<p>To revoke the app's access to a repository:</p>
+<ol>
+<li>Go to app settings → Install App</li>
+<li>Click the gear icon next to your organization</li>
+<li>Under "Repository access", deselect the repository</li>
+<li>Click <strong>Save</strong></li>
+</ol>
+<p>To completely uninstall:</p>
+<ol>
+<li>Go to organization settings → Installed GitHub Apps</li>
+<li>Click <strong>Configure</strong> next to versionconductor</li>
+<li>Click <strong>Uninstall</strong> at the bottom</li>
+</ol>
+<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>
-<li>v0.4.0: Slack/Teams notifications for merge actions</li>
-<li>v0.5.0: Dashboard for dependency update status</li>
-<li>Multi-language support (TypeScript, Swift, Python)</li>
+<li><a href="../setup/">Setup Guide</a> - Configure the workflow in your repositories</li>
+<li><a href="../examples/">Examples</a> - Common configuration patterns</li>
 </ul>
 
 

@@ -16,7 +16,7 @@
         <link rel="prev" href="../../configuration/file/">
       
       
-        <link rel="next" href="../reusable/">
+        <link rel="next" href="../github-app/">
       
       
         
@@ -1042,6 +1042,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../github-app/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitHub App
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../reusable/" class="md-nav__link">
         
   
@@ -1706,28 +1734,13 @@
 <li>Fine-grained permissions per installation</li>
 </ul>
 <p><strong>Setup:</strong></p>
+<p>See the <a href="../github-app/">GitHub App Setup Guide</a> for detailed instructions.</p>
+<p>Quick summary:</p>
 <ol>
-<li>Create a GitHub App named <code>versionconductor</code> with permissions:</li>
-<li>Pull requests: read/write</li>
-<li>Contents: read</li>
-<li>Checks: read</li>
-<li>Commit statuses: read</li>
-<li>
-<p>Metadata: read</p>
-</li>
-<li>
-<p>Install the app on your organization/repositories</p>
-</li>
-<li>
-<p>Add secrets to your repository:</p>
-</li>
-<li><code>VERSIONCONDUCTOR_APP_ID</code> - The App ID</li>
-<li>
-<p><code>VERSIONCONDUCTOR_PRIVATE_KEY</code> - The private key (PEM format)</p>
-</li>
-<li>
-<p>Configure the workflow:</p>
-</li>
+<li>Create a GitHub App named <code>versionconductor</code></li>
+<li>Install the app on your organization</li>
+<li>Add secrets: <code>VERSIONCONDUCTOR_APP_ID</code> and <code>VERSIONCONDUCTOR_PRIVATE_KEY</code></li>
+<li>Configure the workflow:</li>
 </ol>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nt">secrets</span><span class="p">:</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">app-id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.VERSIONCONDUCTOR_APP_ID }}</span>
