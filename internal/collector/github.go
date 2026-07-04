@@ -436,6 +436,91 @@ func TestsPassed(checkRuns []model.CheckRun) bool {
 	return true
 }
 
+// PRComment represents a comment on a pull request.
+type PRComment struct {
+	ID        int64
+	Body      string
+	Author    string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+// CreatePRComment creates a new comment on a pull request.
+func (c *GitHubCollector) CreatePRComment(ctx context.Context, repo model.RepoRef, prNumber int, body string) (*PRComment, error) {
+	comment := &github.IssueComment{
+		Body: github.Ptr(body),
+	}
+
+	created, _, err := c.client.Issues.CreateComment(ctx, repo.Owner, repo.Name, prNumber, comment)
+	if err != nil {
+		return nil, err
+	}
+
+	return &PRComment{
+		ID:        created.GetID(),
+		Body:      created.GetBody(),
+		Author:    created.GetUser().GetLogin(),
+		CreatedAt: created.GetCreatedAt().Time,
+		UpdatedAt: created.GetUpdatedAt().Time,
+	}, nil
+}
+
+// UpdatePRComment updates an existing comment on a pull request.
+func (c *GitHubCollector) UpdatePRComment(ctx context.Context, repo model.RepoRef, commentID int64, body string) (*PRComment, error) {
+	comment := &github.IssueComment{
+		Body: github.Ptr(body),
+	}
+
+	updated, _, err := c.client.Issues.EditComment(ctx, repo.Owner, repo.Name, commentID, comment)
+	if err != nil {
+		return nil, err
+	}
+
+	return &PRComment{
+		ID:        updated.GetID(),
+		Body:      updated.GetBody(),
+		Author:    updated.GetUser().GetLogin(),
+		CreatedAt: updated.GetCreatedAt().Time,
+		UpdatedAt: updated.GetUpdatedAt().Time,
+	}, nil
+}
+
+// FindBotCommentByMarker finds an existing comment containing a specific marker.
+// This is used to find comments created by the bot for updating.
+func (c *GitHubCollector) FindBotCommentByMarker(ctx context.Context, repo model.RepoRef, prNumber int, marker string) (*PRComment, error) {
+	opts := &github.IssueListCommentsOptions{
+		ListOptions: github.ListOptions{
+			PerPage: 100,
+		},
+	}
+
+	for {
+		comments, resp, err := c.client.Issues.ListComments(ctx, repo.Owner, repo.Name, prNumber, opts)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, comment := range comments {
+			if strings.Contains(comment.GetBody(), marker) {
+				return &PRComment{
+					ID:        comment.GetID(),
+					Body:      comment.GetBody(),
+					Author:    comment.GetUser().GetLogin(),
+					CreatedAt: comment.GetCreatedAt().Time,
+					UpdatedAt: comment.GetUpdatedAt().Time,
+				}, nil
+			}
+		}
+
+		if resp.NextPage == 0 {
+			break
+		}
+		opts.Page = resp.NextPage
+	}
+
+	return nil, nil // Not found
+}
+
 // WaitForChecks polls until all checks complete or timeout.
 func (c *GitHubCollector) WaitForChecks(ctx context.Context, repo model.RepoRef, prNumber int, timeout time.Duration) ([]model.CheckRun, error) {
 	// Get PR to get head SHA
