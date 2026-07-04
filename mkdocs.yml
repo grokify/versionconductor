@@ -1,0 +1,87 @@
+site_name: VersionConductor
+site_description: Automated dependency PR management and maintenance releases for GitHub repositories
+site_url: https://plexusone.github.io/versionconductor
+repo_url: https://github.com/plexusone/versionconductor
+repo_name: plexusone/versionconductor
+
+theme:
+  name: material
+  features:
+    - content.code.copy
+    - content.code.annotate
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - toc.follow
+    - search.suggest
+    - search.highlight
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+plugins:
+  - search
+  - minify:
+      minify_html: true
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: getting-started/installation.md
+      - Quick Start: getting-started/quickstart.md
+      - Token Permissions: getting-started/permissions.md
+  - Cedar Policies:
+      - Overview: policies/overview.md
+      - Policy Gates: policies/gates.md
+      - Writing Policies: policies/writing.md
+      - Context Reference: policies/context.md
+  - Configuration:
+      - Merge Profiles: configuration/profiles.md
+      - CLI Options: configuration/cli.md
+      - Config File: configuration/file.md
+  - GitHub Action:
+      - Setup: github-action/setup.md
+      - Reusable Workflow: github-action/reusable.md
+      - Examples: github-action/examples.md
+  - Commands:
+      - scan: commands/scan.md
+      - review: commands/review.md
+      - merge: commands/merge.md
+      - release: commands/release.md
+      - graph: commands/graph.md
+      - policy: commands/policy.md
+  - Releases:
+      - v0.3.0: releases/v0.3.0.md
+      - v0.2.0: releases/v0.2.0.md
+      - v0.1.0: releases/v0.1.0.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/plexusone/versionconductor
