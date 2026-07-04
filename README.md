@@ -20,7 +20,7 @@
  [docs-godoc-svg]: https://pkg.go.dev/badge/github.com/plexusone/versionconductor
  [docs-godoc-url]: https://pkg.go.dev/github.com/plexusone/versionconductor
  [docs-mkdoc-svg]: https://img.shields.io/badge/Go-dev%20guide-blue.svg
- [docs-mkdoc-url]: https://plexusone.dev/versionconductor
+ [docs-mkdoc-url]: https://plexusone.github.io/versionconductor
  [viz-svg]: https://img.shields.io/badge/Go-visualizaton-blue.svg
  [viz-url]: https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=plexusone%2Fversionconductor
  [loc-svg]: https://tokei.rs/b1/github/plexusone/versionconductor
@@ -34,10 +34,12 @@ Part of the DevOpsOrchestra suite alongside [PipelineConductor](https://github.c
 
 ## Features
 
-- 🔍 **Scan** - Find Renovate/Dependabot PRs across organizations
-- ✅ **Review** - Auto-approve dependency PRs based on Cedar policies
-- 🔀 **Merge** - Auto-merge approved PRs with configurable strategies
-- 🚀 **Release** - Create maintenance releases when dependencies are updated
+- **Scan** - Find Renovate/Dependabot PRs across organizations
+- **Review** - Auto-approve dependency PRs based on Cedar policies
+- **Merge** - Auto-merge approved PRs with configurable strategies
+- **Release** - Create maintenance releases when dependencies are updated
+- **Graph** - Analyze dependency relationships across repositories
+- **GitHub Action** - Automate everything with a reusable workflow
 
 ## Installation
 
@@ -47,202 +49,142 @@ go install github.com/plexusone/versionconductor/cmd/versionconductor@latest
 
 ## Quick Start
 
-Set your GitHub token:
-
 ```bash
-export GITHUB_TOKEN=ghp_your_token_here
-```
+# Set token
+export GITHUB_TOKEN=ghp_your_token
 
-### Token Permissions
-
-For full functionality, your token needs:
-
-| Permission | Access | Purpose |
-|------------|--------|---------|
-| Pull requests | Read & Write | List, review, merge PRs |
-| Contents | Read & Write | Merge commits, delete branches |
-| Metadata | Read | Required baseline |
-| Actions | Read | Check CI status |
-| Releases | Read & Write | Create releases/tags |
-
-For scan-only (read-only), `repo` scope or just Pull requests + Metadata + Actions with Read access is sufficient.
-
-Scan for dependency PRs:
-
-```bash
+# Scan for dependency PRs
 versionconductor scan --orgs myorg
-```
 
-Review PRs (dry-run by default):
+# Review with 5-day quarantine policy
+versionconductor review --orgs myorg --profile quarantine --execute
 
-```bash
-versionconductor review --orgs myorg
-```
-
-Merge approved PRs:
-
-```bash
+# Merge approved PRs
 versionconductor merge --orgs myorg --execute
 ```
 
-Create maintenance releases:
+## GitHub Action
 
-```bash
-versionconductor release --orgs myorg --execute
-```
-
-## Commands
-
-### scan
-
-List all open dependency PRs across repositories.
-
-```bash
-# Scan an organization
-versionconductor scan --orgs myorg
-
-# Scan specific repositories
-versionconductor scan --repos owner/repo1,owner/repo2
-
-# Filter by dependency bot
-versionconductor scan --orgs myorg --bot renovate
-
-# Filter by update type
-versionconductor scan --orgs myorg --update-type patch,minor
-
-# Output as JSON
-versionconductor scan --orgs myorg --format json
-```
-
-### review
-
-Auto-approve dependency PRs that meet policy criteria.
-
-```bash
-# Dry-run (default)
-versionconductor review --orgs myorg
-
-# Actually approve
-versionconductor review --orgs myorg --execute
-
-# Use specific profile
-versionconductor review --orgs myorg --profile conservative --execute
-```
-
-### merge
-
-Merge approved dependency PRs.
-
-```bash
-# Dry-run (default)
-versionconductor merge --orgs myorg
-
-# Actually merge
-versionconductor merge --orgs myorg --execute
-
-# Use squash merge
-versionconductor merge --orgs myorg --strategy squash --execute
-
-# Limit merges per run
-versionconductor merge --orgs myorg --max-prs 5 --execute
-```
-
-### release
-
-Create maintenance releases for repositories with merged dependency PRs.
-
-```bash
-# Dry-run (default)
-versionconductor release --orgs myorg
-
-# Create releases
-versionconductor release --orgs myorg --execute
-
-# Only PRs merged since a date
-versionconductor release --orgs myorg --since 2025-01-01 --execute
-
-# Create as drafts for review
-versionconductor release --orgs myorg --draft --execute
-```
-
-## Merge Profiles
-
-VersionConductor includes three built-in merge profiles:
-
-| Profile | Description |
-|---------|-------------|
-| `aggressive` | Merge all passing PRs immediately |
-| `balanced` | Wait 24h, auto-merge patch and minor only |
-| `conservative` | Wait 48h, auto-merge patch only, require approval for others |
-
-Use profiles with the `--profile` flag:
-
-```bash
-versionconductor merge --orgs myorg --profile balanced --execute
-```
-
-## Configuration
-
-Create a `.versionconductor.yaml` file in your home directory or project root:
+Add automated dependency management to any repo:
 
 ```yaml
-orgs:
-  - myorg
-  - anotherorg
+# .github/workflows/go-dependency-automerge.yaml
+name: Go Dependency Auto-Merge
 
-token: ${GITHUB_TOKEN}  # Will read from environment
+on:
+  schedule:
+    - cron: "7,22,37,52 * * * *"  # Every 15 minutes
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: 'PR number to evaluate'
+        required: false
+        type: string
 
-merge:
-  profile: balanced
-  strategy: squash
-  delete-branch: true
+permissions:
+  contents: read
+  pull-requests: write
+  checks: read
+  statuses: read
 
-release:
-  generate-notes: true
-  prefix: v
+jobs:
+  auto-merge:
+    uses: plexusone/.github/.github/workflows/go-dependency-automerge.yaml@main
+    with:
+      profile: 'quarantine'
+      min-age-days: 5
+    secrets: inherit
 ```
+
+See [GitHub Action Setup](https://plexusone.github.io/versionconductor/github-action/setup/) for details.
 
 ## Cedar Policies
 
-VersionConductor uses [Cedar](https://www.cedarpolicy.com/) for fine-grained policy control.
+VersionConductor uses [Cedar](https://www.cedarpolicy.com/) for policy-driven automation.
 
-Example policy for auto-merging patch updates:
+The default Go dependency policy enforces:
+
+| Gate | Description |
+|------|-------------|
+| Author | Only `dependabot[bot]` or `renovate[bot]` |
+| Files | Only `go.mod` and `go.sum` changed |
+| Directives | No `replace`/`exclude`/`toolchain` changes |
+| Version | Patch or minor updates only (no major) |
+| Age | 5-day quarantine period |
+| CI | All checks must pass |
+
+Example Cedar policy:
 
 ```cedar
+@id("allow-patch-updates")
+@action("AUTO_MERGE")
 permit(
     principal,
     action == Action::"merge",
     resource
 )
 when {
-    context.pr.isDependency == true &&
-    context.ci.allPassed == true &&
-    context.pr.ageHours >= 1 &&
+    context.pr.author == "dependabot[bot]" &&
+    context.pr.onlyGoModFiles == true &&
+    context.goMod.hasDirectiveChanges == false &&
     context.dependency.isPatch == true &&
-    context.pr.mergeable == true &&
-    context.pr.draft == false
+    context.pr.ageDays >= 5 &&
+    context.ci.allPassed == true
 };
 ```
 
-## Output Formats
+The `@action` annotation specifies the decision outcome when the policy matches.
 
-All commands support multiple output formats:
+See [Cedar Policies](https://plexusone.github.io/versionconductor/policies/overview/) for full documentation.
 
-- `table` (default) - Human-readable text table
-- `json` - JSON for programmatic consumption
-- `markdown` - Markdown for reports and documentation
-- `csv` - CSV for spreadsheet import
+## Merge Profiles
+
+| Profile | Min Age | Patch | Minor | Major |
+|---------|---------|-------|-------|-------|
+| `aggressive` | 0 | Auto | Auto | Auto |
+| `balanced` | 24h | Auto | Auto | Manual |
+| `conservative` | 48h | Auto | Manual | Manual |
+| `quarantine` | 5 days | Auto | Auto | Manual |
 
 ```bash
-versionconductor scan --orgs myorg --format json
+versionconductor review --orgs myorg --profile quarantine --execute
 ```
 
-## Safety Features
+## Commands
 
-1. **Dry-run by default** - All write operations require `--execute`
-2. **Policy-driven** - No auto-merge without explicit policy
-3. **Rate limiting** - Respects GitHub API limits
-4. **Audit trail** - All actions logged with timestamps
+| Command | Description |
+|---------|-------------|
+| `scan` | List open dependency PRs |
+| `review` | Auto-approve PRs based on policy |
+| `merge` | Merge approved PRs |
+| `release` | Create maintenance releases |
+| `graph` | Dependency graph analysis |
+| `policy evaluate` | Evaluate policies against a PR |
+
+All write commands are **dry-run by default**. Use `--execute` to perform actions.
+
+### Policy Evaluation
+
+Test policy evaluation locally or in CI:
+
+```bash
+# Evaluate a PR against policies
+versionconductor policy evaluate --repo owner/repo --pr 123 --profile quarantine
+
+# Post decision as PR comment
+versionconductor policy evaluate --repo owner/repo --pr 123 --comment
+```
+
+Decisions include outcomes like `AUTO_MERGE`, `QUEUE_FOR_MERGE`, `MANUAL_REVIEW`, or `SECURITY_TEAM_REVIEW`.
+
+## Documentation
+
+Full documentation available at [plexusone.github.io/versionconductor](https://plexusone.github.io/versionconductor)
+
+- [Getting Started](https://plexusone.github.io/versionconductor/getting-started/quickstart/)
+- [Cedar Policies](https://plexusone.github.io/versionconductor/policies/overview/)
+- [GitHub Action](https://plexusone.github.io/versionconductor/github-action/setup/)
+- [Configuration](https://plexusone.github.io/versionconductor/configuration/profiles/)
 
 ## Development
 
