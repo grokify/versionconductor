@@ -5,13 +5,13 @@ VersionConductor provides a reusable GitHub Action workflow for automating Go de
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    Organization (.github repo)                   │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │  .github/workflows/go-dependency-automerge.yaml         │    │
-│  │  (Reusable workflow with policy logic)                  │    │
-│  └─────────────────────────────────────────────────────────┘    │
-└─────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────┐
+│                    Organization (.github repo)                │
+│  ┌─────────────────────────────────────────────────────────┐  │
+│  │  .github/workflows/go-dependency-automerge.yaml         │  │
+│  │  (Reusable workflow with policy logic)                  │  │
+│  └─────────────────────────────────────────────────────────┘  │
+└───────────────────────────────────────────────────────────────┘
                               │
                     ┌─────────┴─────────┐
                     │                   │
