@@ -48,19 +48,19 @@ versionconductor review --orgs myorg --profile quarantine --execute
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                      VersionConductor CLI                        │
+│                      VersionConductor CLI                       │
 ├─────────────────────────────────────────────────────────────────┤
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
-│  │  Collector   │  │    Policy    │  │      Merger          │  │
-│  │ - PR Scanner │  │    Engine    │  │ - Squash/Merge/Rebase│  │
-│  │ - Metadata   │  │ - Cedar      │  │ - Branch Protection  │  │
-│  └──────────────┘  └──────────────┘  └──────────────────────┘  │
-│                                                                   │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
-│  │   Releaser   │  │    Graph     │  │      Report          │  │
-│  │ - Semver     │  │ - Dep Graph  │  │ - JSON               │  │
-│  │ - Tags       │  │ - Topo Sort  │  │ - Markdown           │  │
-│  └──────────────┘  └──────────────┘  └──────────────────────┘  │
+│  ┌──────────────┐  ┌──────────────┐  ┌───────────────────────┐  │
+│  │  Collector   │  │    Policy    │  │      Merger           │  │
+│  │ - PR Scanner │  │    Engine    │  │ - Squash/Merge/Rebase │  │
+│  │ - Metadata   │  │ - Cedar      │  │ - Branch Protection   │  │
+│  └──────────────┘  └──────────────┘  └───────────────────────┘  │
+│                                                                 │
+│  ┌──────────────┐  ┌──────────────┐  ┌───────────────────────┐  │
+│  │   Releaser   │  │    Graph     │  │      Report           │  │
+│  │ - Semver     │  │ - Dep Graph  │  │ - JSON                │  │
+│  │ - Tags       │  │ - Topo Sort  │  │ - Markdown            │  │
+│  └──────────────┘  └──────────────┘  └───────────────────────┘  │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
