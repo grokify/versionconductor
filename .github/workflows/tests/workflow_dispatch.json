@@ -1,0 +1,16 @@
+{
+  "action": "workflow_dispatch",
+  "inputs": {
+    "test-suite": "all"
+  },
+  "repository": {
+    "full_name": "plexusone/versionconductor",
+    "name": "versionconductor",
+    "owner": {
+      "login": "plexusone"
+    }
+  },
+  "sender": {
+    "login": "test-user"
+  }
+}

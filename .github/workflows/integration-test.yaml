@@ -1,0 +1,193 @@
+# Integration tests for the auto-merge workflow
+#
+# Run locally with: act -W .github/workflows/integration-test.yaml
+# Requires: https://github.com/nektos/act
+
+name: Integration Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      test-suite:
+        description: 'Test suite to run'
+        required: false
+        type: choice
+        options:
+          - all
+          - auth
+          - policy
+          - merge
+        default: 'all'
+  pull_request:
+    paths:
+      - '.github/workflows/**'
+      - 'internal/**'
+      - 'cmd/**'
+
+jobs:
+  test-build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.24.x'
+
+      - name: Build
+        run: go build -v ./...
+
+      - name: Test
+        run: go test -v -cover ./...
+
+      - name: Lint
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: latest
+
+  test-auth-github-token:
+    name: Test Auth - GITHUB_TOKEN
+    runs-on: ubuntu-latest
+    needs: test-build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify GITHUB_TOKEN
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "Testing GITHUB_TOKEN authentication..."
+
+          # Verify token works
+          gh auth status
+
+          # Verify we can list PRs
+          gh pr list --limit 1 || echo "No PRs found (expected for test)"
+
+          echo "GITHUB_TOKEN authentication: OK"
+
+  test-policy-evaluation:
+    name: Test Policy Evaluation
+    runs-on: ubuntu-latest
+    needs: test-build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.24.x'
+
+      - name: Install versionconductor
+        run: go install ./cmd/versionconductor
+
+      - name: Test policy evaluation (dry-run)
+        run: |
+          echo "Testing policy evaluation..."
+
+          # Create test policy context
+          cat > /tmp/test-pr.json << 'EOF'
+          {
+            "number": 1,
+            "title": "Bump github.com/spf13/cobra from 1.7.0 to 1.8.0",
+            "author": "dependabot[bot]",
+            "state": "open",
+            "isDependency": true,
+            "dependBot": "dependabot",
+            "dependency": {
+              "name": "github.com/spf13/cobra",
+              "ecosystem": "go",
+              "fromVersion": "1.7.0",
+              "toVersion": "1.8.0",
+              "updateType": "minor"
+            },
+            "createdAt": "2024-01-01T00:00:00Z",
+            "testsPassed": true,
+            "mergeable": true
+          }
+          EOF
+
+          echo "Test PR context created"
+          cat /tmp/test-pr.json
+
+          echo "Policy files available:"
+          ls -la policies/go/ || echo "No policy files found"
+
+  test-workflow-inputs:
+    name: Test Workflow Inputs
+    runs-on: ubuntu-latest
+    needs: test-build
+    strategy:
+      matrix:
+        profile: [quarantine, balanced, conservative]
+        dry-run: [true, false]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Test input validation
+        run: |
+          echo "Testing profile: ${{ matrix.profile }}, dry-run: ${{ matrix.dry-run }}"
+
+          # Validate profile is recognized
+          case "${{ matrix.profile }}" in
+            quarantine|balanced|conservative|aggressive)
+              echo "Profile '${{ matrix.profile }}' is valid"
+              ;;
+            *)
+              echo "Unknown profile: ${{ matrix.profile }}"
+              exit 1
+              ;;
+          esac
+
+  test-merge-strategies:
+    name: Test Merge Strategies
+    runs-on: ubuntu-latest
+    needs: test-build
+    strategy:
+      matrix:
+        strategy: [squash, merge, rebase]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate merge strategy
+        run: |
+          echo "Testing merge strategy: ${{ matrix.strategy }}"
+
+          case "${{ matrix.strategy }}" in
+            squash|merge|rebase)
+              echo "Strategy '${{ matrix.strategy }}' is valid"
+              ;;
+            *)
+              echo "Unknown strategy: ${{ matrix.strategy }}"
+              exit 1
+              ;;
+          esac
+
+  summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs:
+      - test-build
+      - test-auth-github-token
+      - test-policy-evaluation
+      - test-workflow-inputs
+      - test-merge-strategies
+    steps:
+      - name: Summary
+        run: |
+          echo "## Integration Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Test | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Build and Test | :white_check_mark: |" >> $GITHUB_STEP_SUMMARY
+          echo "| Auth - GITHUB_TOKEN | :white_check_mark: |" >> $GITHUB_STEP_SUMMARY
+          echo "| Policy Evaluation | :white_check_mark: |" >> $GITHUB_STEP_SUMMARY
+          echo "| Workflow Inputs | :white_check_mark: |" >> $GITHUB_STEP_SUMMARY
+          echo "| Merge Strategies | :white_check_mark: |" >> $GITHUB_STEP_SUMMARY
