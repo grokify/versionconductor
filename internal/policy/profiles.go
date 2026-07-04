@@ -12,6 +12,7 @@ var (
 		Description: "Merge all passing dependency PRs immediately",
 
 		MinAgeHours: 0,
+		MinAgeDays:  0,
 		MaxAgeHours: 0,
 
 		AutoMergePatch: true,
@@ -34,6 +35,7 @@ var (
 		Description: "Wait 24h, auto-merge patch and minor updates only",
 
 		MinAgeHours: 24,
+		MinAgeDays:  1,
 		MaxAgeHours: 0,
 
 		AutoMergePatch: true,
@@ -56,6 +58,7 @@ var (
 		Description: "Auto-merge only patch updates after 48h, manual review for others",
 
 		MinAgeHours: 48,
+		MinAgeDays:  2,
 		MaxAgeHours: 0,
 
 		AutoMergePatch: true,
@@ -71,6 +74,30 @@ var (
 		RequireApproval: true,
 		MaxPRsPerRun:    5,
 	}
+
+	// ProfileQuarantine implements N+5 day waiting period for Go dependencies.
+	// This is the recommended profile for automated Go dependency updates.
+	ProfileQuarantine = model.MergeProfile{
+		Name:        "quarantine",
+		Description: "N+5 day quarantine: auto-merge patch/minor after 5 days, Go-only",
+
+		MinAgeHours: 120, // 5 days
+		MinAgeDays:  5,
+		MaxAgeHours: 0,
+
+		AutoMergePatch: true,
+		AutoMergeMinor: true,
+		AutoMergeMajor: false,
+
+		RequireAllChecks:   true,
+		AllowPendingChecks: false,
+
+		MergeStrategy: "squash",
+		DeleteBranch:  true,
+
+		RequireApproval: false,
+		MaxPRsPerRun:    1, // One PR per run to avoid conflicts
+	}
 )
 
 // GetProfile returns a merge profile by name.
@@ -82,6 +109,8 @@ func GetProfile(name string) *model.MergeProfile {
 		return &ProfileBalanced
 	case "conservative":
 		return &ProfileConservative
+	case "quarantine":
+		return &ProfileQuarantine
 	default:
 		return nil
 	}
@@ -89,7 +118,7 @@ func GetProfile(name string) *model.MergeProfile {
 
 // ListProfiles returns all available profile names.
 func ListProfiles() []string {
-	return []string{"aggressive", "balanced", "conservative"}
+	return []string{"aggressive", "balanced", "conservative", "quarantine"}
 }
 
 // EvaluateProfile evaluates a PR against a merge profile.
