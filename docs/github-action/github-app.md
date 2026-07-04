@@ -87,7 +87,21 @@ App ID: 123456
 
 Add the App ID and private key as secrets for your workflows.
 
-### Organization-Level Secrets (Recommended)
+### Option A: Web UI
+
+1. Go to your organization's secrets page:
+   ```
+   https://github.com/organizations/YOUR_ORG/settings/secrets/actions
+   ```
+2. Click **New organization secret**
+3. Name: `VERSIONCONDUCTOR_APP_ID`, Value: your App ID (e.g., `123456`)
+4. Visibility: **All repositories** (or select specific repos)
+5. Click **Add secret**
+6. Repeat for `VERSIONCONDUCTOR_PRIVATE_KEY` (paste full `.pem` file contents)
+
+### Option B: GitHub CLI
+
+**Organization-Level Secrets (Recommended)**
 
 Makes secrets available to all repositories in the organization:
 
@@ -105,7 +119,7 @@ gh secret set VERSIONCONDUCTOR_PRIVATE_KEY \
   < /path/to/versionconductor.pem
 ```
 
-### Repository-Level Secrets
+**Repository-Level Secrets**
 
 For individual repositories:
 
