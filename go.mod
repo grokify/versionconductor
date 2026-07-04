@@ -3,6 +3,7 @@ module github.com/plexusone/versionconductor
 go 1.26.0
 
 require (
+	github.com/cedar-policy/cedar-go v1.8.0
 	github.com/google/go-github/v88 v88.0.0
 	github.com/grokify/gogithub v0.13.0
 	github.com/grokify/mogo v0.74.6
