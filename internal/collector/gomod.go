@@ -7,7 +7,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/google/go-github/v88/github"
 	"github.com/plexusone/versionconductor/pkg/model"
 )
 
@@ -68,26 +67,14 @@ func (c *GitHubCollector) AnalyzePRForGoMod(ctx context.Context, repo model.Repo
 
 // GetPRFiles returns the list of files changed in a PR.
 func (c *GitHubCollector) GetPRFiles(ctx context.Context, repo model.RepoRef, prNumber int) ([]string, error) {
-	opts := &github.ListOptions{
-		PerPage: 100,
+	files, err := c.client.ListPullRequestFiles(ctx, repo.Owner, repo.Name, prNumber)
+	if err != nil {
+		return nil, err
 	}
 
 	var allFiles []string
-
-	for {
-		files, resp, err := c.client.PullRequests.ListFiles(ctx, repo.Owner, repo.Name, prNumber, opts)
-		if err != nil {
-			return nil, err
-		}
-
-		for _, f := range files {
-			allFiles = append(allFiles, f.GetFilename())
-		}
-
-		if resp.NextPage == 0 {
-			break
-		}
-		opts.Page = resp.NextPage
+	for _, f := range files {
+		allFiles = append(allFiles, f.Filename)
 	}
 
 	return allFiles, nil
@@ -95,18 +82,7 @@ func (c *GitHubCollector) GetPRFiles(ctx context.Context, repo model.RepoRef, pr
 
 // GetPRDiff returns the unified diff for a PR.
 func (c *GitHubCollector) GetPRDiff(ctx context.Context, repo model.RepoRef, prNumber int) (string, error) {
-	diff, _, err := c.client.PullRequests.GetRaw(
-		ctx,
-		repo.Owner,
-		repo.Name,
-		prNumber,
-		github.RawOptions{Type: github.Diff},
-	)
-	if err != nil {
-		return "", err
-	}
-
-	return diff, nil
+	return c.client.GetPullRequestDiff(ctx, repo.Owner, repo.Name, prNumber)
 }
 
 // areOnlyGoModFiles checks if all changed files are go.mod or go.sum.

@@ -9,7 +9,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/google/go-github/v88/github"
+	ghErrors "github.com/grokify/gogithub/errors"
+
+	"github.com/grokify/gogithub/clientv1"
 )
 
 // RateLimitConfig configures rate limit handling behavior.
@@ -53,22 +55,21 @@ func NewRateLimiter(config RateLimitConfig) *RateLimiter {
 
 // CheckRateLimit checks the current rate limit status and waits if necessary.
 // Returns an error if the context is cancelled while waiting.
-func (rl *RateLimiter) CheckRateLimit(ctx context.Context, client *github.Client) error {
-	limits, _, err := client.RateLimit.Get(ctx)
+func (rl *RateLimiter) CheckRateLimit(ctx context.Context, client clientv1.Client) error {
+	core, err := client.GetRateLimit(ctx)
 	if err != nil {
 		// If we can't get rate limits, proceed with caution
 		rl.logWarn("failed to get rate limits, proceeding anyway", "error", err)
 		return nil
 	}
 
-	core := limits.Core
 	if core.Remaining < rl.config.MinRemaining {
-		waitDuration := time.Until(core.Reset.Time)
+		waitDuration := time.Until(core.Reset)
 		if waitDuration > 0 {
 			rl.logWarn("rate limit low, waiting for reset",
 				"remaining", core.Remaining,
 				"limit", core.Limit,
-				"reset", core.Reset.Time,
+				"reset", core.Reset,
 				"wait", waitDuration,
 			)
 
@@ -87,7 +88,7 @@ func (rl *RateLimiter) CheckRateLimit(ctx context.Context, client *github.Client
 // HandleRateLimitError handles a rate limit error response.
 // It waits for the appropriate duration before retrying.
 // Returns true if the request should be retried, false otherwise.
-func (rl *RateLimiter) HandleRateLimitError(ctx context.Context, resp *github.Response, attempt int) (bool, error) {
+func (rl *RateLimiter) HandleRateLimitError(ctx context.Context, resp *http.Response, attempt int) (bool, error) {
 	if attempt >= rl.config.MaxRetries {
 		return false, nil
 	}
@@ -152,27 +153,11 @@ func (rl *RateLimiter) calculateBackoff(attempt int) time.Duration {
 
 // IsRateLimitError checks if an error is a GitHub rate limit error.
 func IsRateLimitError(err error) bool {
-	if err == nil {
-		return false
-	}
-
-	// Check for GitHub rate limit error
-	if rateLimitErr, ok := err.(*github.RateLimitError); ok {
-		_ = rateLimitErr
-		return true
-	}
-
-	// Check for abuse rate limit error (secondary rate limit)
-	if abuseErr, ok := err.(*github.AbuseRateLimitError); ok {
-		_ = abuseErr
-		return true
-	}
-
-	return false
+	return ghErrors.IsRateLimitError(err)
 }
 
 // IsRateLimitResponse checks if a response indicates rate limiting.
-func IsRateLimitResponse(resp *github.Response) bool {
+func IsRateLimitResponse(resp *http.Response) bool {
 	if resp == nil {
 		return false
 	}
@@ -181,7 +166,7 @@ func IsRateLimitResponse(resp *github.Response) bool {
 }
 
 // GetRateLimitRemaining returns the remaining rate limit from a response.
-func GetRateLimitRemaining(resp *github.Response) int {
+func GetRateLimitRemaining(resp *http.Response) int {
 	if resp == nil || resp.Header == nil {
 		return -1
 	}

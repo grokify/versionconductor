@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/go-github/v88/github"
-	"github.com/grokify/gogithub/auth"
+	"github.com/grokify/gogithub"
 	"github.com/grokify/gogithub/checks"
+	"github.com/grokify/gogithub/clientv1"
 	"github.com/grokify/gogithub/pr"
 	"github.com/grokify/gogithub/release"
 	"github.com/grokify/gogithub/tag"
@@ -18,13 +18,13 @@ import (
 
 // GitHubCollector implements Collector for GitHub repositories.
 type GitHubCollector struct {
-	client *github.Client
+	client clientv1.Client
 }
 
 // NewGitHubCollector creates a new GitHub collector.
 func NewGitHubCollector(token string) (*GitHubCollector, error) {
 	ctx := context.Background()
-	client, err := auth.NewGitHubClient(ctx, token)
+	client, err := clientv1.NewClient(ctx, token)
 	if err != nil {
 		return nil, err
 	}
@@ -38,43 +38,29 @@ func (c *GitHubCollector) ListRepos(ctx context.Context, orgs []string, filter m
 	var repos []model.Repo
 
 	for _, org := range orgs {
-		opt := &github.RepositoryListByOrgOptions{
-			Type: "all",
-			ListOptions: github.ListOptions{
-				PerPage: 100,
-			},
+		ghRepos, err := c.client.ListOrgRepos(ctx, org)
+		if err != nil {
+			return nil, err
 		}
 
-		for {
-			ghRepos, resp, err := c.client.Repositories.ListByOrg(ctx, org, opt)
-			if err != nil {
-				return nil, err
+		for _, r := range ghRepos {
+			repo := convertRepo(r)
+
+			// Apply filters
+			if repo.Archived && !filter.IncludeArchived {
+				continue
+			}
+			if repo.Private && !filter.IncludePrivate {
+				continue
+			}
+			if r.Fork && !filter.IncludeForks {
+				continue
+			}
+			if isExcluded(repo.FullName, filter.ExcludeRepos) {
+				continue
 			}
 
-			for _, r := range ghRepos {
-				repo := convertRepo(r)
-
-				// Apply filters
-				if repo.Archived && !filter.IncludeArchived {
-					continue
-				}
-				if repo.Private && !filter.IncludePrivate {
-					continue
-				}
-				if r.GetFork() && !filter.IncludeForks {
-					continue
-				}
-				if isExcluded(repo.FullName, filter.ExcludeRepos) {
-					continue
-				}
-
-				repos = append(repos, repo)
-			}
-
-			if resp.NextPage == 0 {
-				break
-			}
-			opt.Page = resp.NextPage
+			repos = append(repos, repo)
 		}
 	}
 
@@ -85,12 +71,7 @@ func (c *GitHubCollector) ListRepos(ctx context.Context, orgs []string, filter m
 func (c *GitHubCollector) ListDependencyPRs(ctx context.Context, repo model.RepoRef) ([]model.PullRequest, error) {
 	var prs []model.PullRequest
 
-	opts := &github.PullRequestListOptions{
-		State: "open",
-		ListOptions: github.ListOptions{
-			PerPage: 100,
-		},
-	}
+	opts := &clientv1.ListPullRequestsOptions{State: "open"}
 
 	ghPRs, err := pr.ListPRs(ctx, c.client, repo.Owner, repo.Name, opts)
 	if err != nil {
@@ -130,9 +111,6 @@ func (c *GitHubCollector) GetPRDetails(ctx context.Context, repo model.RepoRef, 
 	if ghPR.Mergeable != nil {
 		mpr.Mergeable = *ghPR.Mergeable
 	}
-	if ghPR.MergeableState != nil {
-		mpr.MergeableStr = *ghPR.MergeableState
-	}
 
 	return &mpr, nil
 }
@@ -147,9 +125,9 @@ func (c *GitHubCollector) GetPRChecks(ctx context.Context, repo model.RepoRef, p
 	var result []model.CheckRun
 	for _, cr := range ghChecks {
 		result = append(result, model.CheckRun{
-			Name:       cr.GetName(),
-			Status:     cr.GetStatus(),
-			Conclusion: cr.GetConclusion(),
+			Name:       cr.Name,
+			Status:     cr.Status,
+			Conclusion: cr.Conclusion,
 		})
 	}
 
@@ -168,15 +146,15 @@ func (c *GitHubCollector) GetLatestRelease(ctx context.Context, repo model.RepoR
 	}
 
 	return &model.Release{
-		ID:          ghRelease.GetID(),
-		TagName:     ghRelease.GetTagName(),
-		Name:        ghRelease.GetName(),
-		Body:        ghRelease.GetBody(),
-		Draft:       ghRelease.GetDraft(),
-		Prerelease:  ghRelease.GetPrerelease(),
-		CreatedAt:   ghRelease.GetCreatedAt().Time,
-		PublishedAt: ghRelease.GetPublishedAt().Time,
-		HTMLURL:     ghRelease.GetHTMLURL(),
+		ID:          ghRelease.ID,
+		TagName:     ghRelease.TagName,
+		Name:        ghRelease.Name,
+		Body:        ghRelease.Body,
+		Draft:       ghRelease.Draft,
+		Prerelease:  ghRelease.Prerelease,
+		CreatedAt:   ghRelease.CreatedAt,
+		PublishedAt: derefTime(ghRelease.PublishedAt),
+		HTMLURL:     ghRelease.HTMLURL,
 		Repo:        repo,
 	}, nil
 }
@@ -191,8 +169,8 @@ func (c *GitHubCollector) ListTags(ctx context.Context, repo model.RepoRef) ([]m
 	var tags []model.Tag
 	for _, t := range ghTags {
 		tags = append(tags, model.Tag{
-			Name: t.GetName(),
-			SHA:  t.GetCommit().GetSHA(),
+			Name: t.Name,
+			SHA:  t.SHA,
 			Repo: repo,
 		})
 	}
@@ -201,6 +179,11 @@ func (c *GitHubCollector) ListTags(ctx context.Context, repo model.RepoRef) ([]m
 }
 
 // GetMergedPRsSinceTag returns PRs merged since the given tag.
+//
+// Note: unlike go-github's raw pagination, clientv1.ListPullRequests always
+// fetches every matching PR before returning (it has no early-exit hook), so
+// this can make more API calls than strictly necessary for repos with a very
+// long closed-PR history. Results are still filtered correctly by since.
 func (c *GitHubCollector) GetMergedPRsSinceTag(ctx context.Context, repo model.RepoRef, tagName string) ([]model.PullRequest, error) {
 	// Get the tag's commit date
 	tagSHA, err := tag.GetTagSHA(ctx, c.client, repo.Owner, repo.Name, tagName)
@@ -208,108 +191,107 @@ func (c *GitHubCollector) GetMergedPRsSinceTag(ctx context.Context, repo model.R
 		return nil, err
 	}
 
-	commit, _, err := c.client.Git.GetCommit(ctx, repo.Owner, repo.Name, tagSHA)
+	commit, err := c.client.GetCommit(ctx, repo.Owner, repo.Name, tagSHA)
 	if err != nil {
 		return nil, err
 	}
 
-	since := commit.GetCommitter().GetDate().Time
+	since := commit.Committer.Date
 
-	var prs []model.PullRequest
-
-	opts := &github.PullRequestListOptions{
+	opts := &clientv1.ListPullRequestsOptions{
 		State:     "closed",
 		Sort:      "updated",
 		Direction: "desc",
-		ListOptions: github.ListOptions{
-			PerPage: 100,
-		},
 	}
 
-	for {
-		ghPRs, resp, err := c.client.PullRequests.List(ctx, repo.Owner, repo.Name, opts)
-		if err != nil {
-			return nil, err
+	ghPRs, err := pr.ListPRs(ctx, c.client, repo.Owner, repo.Name, opts)
+	if err != nil {
+		return nil, err
+	}
+
+	var prs []model.PullRequest
+	for _, ghPR := range ghPRs {
+		if ghPR.MergedAt == nil {
+			continue
+		}
+		if ghPR.MergedAt.Before(since) {
+			continue
 		}
 
-		foundOlder := false
-		for _, ghPR := range ghPRs {
-			if ghPR.MergedAt == nil {
-				continue
-			}
-			mergedAt := ghPR.GetMergedAt().Time
-			if mergedAt.Before(since) {
-				foundOlder = true
-				continue
-			}
-
-			mpr := convertPR(ghPR, repo)
-			mpr.DependBot = model.DetectDependBot(mpr.Author)
-			if mpr.DependBot != model.DependBotUnknown {
-				mpr.IsDependency = true
-				mpr.Dependency = parseDependencyFromTitle(mpr.Title)
-			}
-			prs = append(prs, mpr)
+		mpr := convertPR(ghPR, repo)
+		mpr.DependBot = model.DetectDependBot(mpr.Author)
+		if mpr.DependBot != model.DependBotUnknown {
+			mpr.IsDependency = true
+			mpr.Dependency = parseDependencyFromTitle(mpr.Title)
 		}
-
-		if resp.NextPage == 0 || foundOlder {
-			break
-		}
-		opts.Page = resp.NextPage
+		prs = append(prs, mpr)
 	}
 
 	return prs, nil
 }
 
 // convertRepo converts a GitHub repository to our model.
-func convertRepo(r *github.Repository) model.Repo {
-	var topics []string
-	if r.Topics != nil {
-		topics = r.Topics
+func convertRepo(r *gogithub.Repository) model.Repo {
+	owner := ""
+	if r.Owner != nil {
+		owner = r.Owner.Login
 	}
 
 	return model.Repo{
-		Owner:         r.GetOwner().GetLogin(),
-		Name:          r.GetName(),
-		FullName:      r.GetFullName(),
-		Description:   r.GetDescription(),
-		DefaultBranch: r.GetDefaultBranch(),
-		Private:       r.GetPrivate(),
-		Archived:      r.GetArchived(),
-		Language:      r.GetLanguage(),
-		Topics:        topics,
-		UpdatedAt:     r.GetUpdatedAt().Time,
-		HTMLURL:       r.GetHTMLURL(),
+		Owner:         owner,
+		Name:          r.Name,
+		FullName:      r.FullName,
+		Description:   r.Description,
+		DefaultBranch: r.DefaultBranch,
+		Private:       r.Private,
+		Archived:      r.Archived,
+		Language:      r.Language,
+		Topics:        r.Topics,
+		UpdatedAt:     r.UpdatedAt,
+		HTMLURL:       r.HTMLURL,
 	}
 }
 
 // convertPR converts a GitHub pull request to our model.
-func convertPR(ghPR *github.PullRequest, repo model.RepoRef) model.PullRequest {
+func convertPR(ghPR *gogithub.PullRequest, repo model.RepoRef) model.PullRequest {
 	var labels []string
 	for _, l := range ghPR.Labels {
-		labels = append(labels, l.GetName())
+		labels = append(labels, l.Name)
+	}
+
+	author := ""
+	if ghPR.User != nil {
+		author = ghPR.User.Login
 	}
 
 	mpr := model.PullRequest{
-		Number:    ghPR.GetNumber(),
-		Title:     ghPR.GetTitle(),
-		Body:      ghPR.GetBody(),
-		State:     ghPR.GetState(),
-		Author:    ghPR.GetUser().GetLogin(),
-		HTMLURL:   ghPR.GetHTMLURL(),
-		Draft:     ghPR.GetDraft(),
+		Number:    ghPR.Number,
+		Title:     ghPR.Title,
+		Body:      ghPR.Body,
+		State:     ghPR.State,
+		Author:    author,
+		HTMLURL:   ghPR.HTMLURL,
+		Draft:     ghPR.Draft,
 		Labels:    labels,
-		CreatedAt: ghPR.GetCreatedAt().Time,
-		UpdatedAt: ghPR.GetUpdatedAt().Time,
+		CreatedAt: ghPR.CreatedAt,
+		UpdatedAt: ghPR.UpdatedAt,
 		Repo:      repo,
 	}
 
 	if ghPR.MergedAt != nil {
-		t := ghPR.GetMergedAt().Time
+		t := *ghPR.MergedAt
 		mpr.MergedAt = &t
 	}
 
 	return mpr
+}
+
+// derefTime returns the zero value if t is nil, else *t.
+func derefTime(t *time.Time) time.Time {
+	if t == nil {
+		return time.Time{}
+	}
+	return *t
 }
 
 // parseDependencyFromTitle extracts dependency information from a PR title.
@@ -447,78 +429,53 @@ type PRComment struct {
 
 // CreatePRComment creates a new comment on a pull request.
 func (c *GitHubCollector) CreatePRComment(ctx context.Context, repo model.RepoRef, prNumber int, body string) (*PRComment, error) {
-	comment := &github.IssueComment{
-		Body: github.Ptr(body),
-	}
-
-	created, _, err := c.client.Issues.CreateComment(ctx, repo.Owner, repo.Name, prNumber, comment)
+	created, err := c.client.CreateIssueComment(ctx, repo.Owner, repo.Name, prNumber, body)
 	if err != nil {
 		return nil, err
 	}
 
-	return &PRComment{
-		ID:        created.GetID(),
-		Body:      created.GetBody(),
-		Author:    created.GetUser().GetLogin(),
-		CreatedAt: created.GetCreatedAt().Time,
-		UpdatedAt: created.GetUpdatedAt().Time,
-	}, nil
+	return issueCommentToPRComment(created), nil
 }
 
 // UpdatePRComment updates an existing comment on a pull request.
 func (c *GitHubCollector) UpdatePRComment(ctx context.Context, repo model.RepoRef, commentID int64, body string) (*PRComment, error) {
-	comment := &github.IssueComment{
-		Body: github.Ptr(body),
-	}
-
-	updated, _, err := c.client.Issues.EditComment(ctx, repo.Owner, repo.Name, commentID, comment)
+	updated, err := c.client.EditIssueComment(ctx, repo.Owner, repo.Name, commentID, body)
 	if err != nil {
 		return nil, err
 	}
 
-	return &PRComment{
-		ID:        updated.GetID(),
-		Body:      updated.GetBody(),
-		Author:    updated.GetUser().GetLogin(),
-		CreatedAt: updated.GetCreatedAt().Time,
-		UpdatedAt: updated.GetUpdatedAt().Time,
-	}, nil
+	return issueCommentToPRComment(updated), nil
 }
 
 // FindBotCommentByMarker finds an existing comment containing a specific marker.
 // This is used to find comments created by the bot for updating.
 func (c *GitHubCollector) FindBotCommentByMarker(ctx context.Context, repo model.RepoRef, prNumber int, marker string) (*PRComment, error) {
-	opts := &github.IssueListCommentsOptions{
-		ListOptions: github.ListOptions{
-			PerPage: 100,
-		},
+	comments, err := c.client.ListIssueComments(ctx, repo.Owner, repo.Name, prNumber)
+	if err != nil {
+		return nil, err
 	}
 
-	for {
-		comments, resp, err := c.client.Issues.ListComments(ctx, repo.Owner, repo.Name, prNumber, opts)
-		if err != nil {
-			return nil, err
+	for _, comment := range comments {
+		if strings.Contains(comment.Body, marker) {
+			return issueCommentToPRComment(comment), nil
 		}
-
-		for _, comment := range comments {
-			if strings.Contains(comment.GetBody(), marker) {
-				return &PRComment{
-					ID:        comment.GetID(),
-					Body:      comment.GetBody(),
-					Author:    comment.GetUser().GetLogin(),
-					CreatedAt: comment.GetCreatedAt().Time,
-					UpdatedAt: comment.GetUpdatedAt().Time,
-				}, nil
-			}
-		}
-
-		if resp.NextPage == 0 {
-			break
-		}
-		opts.Page = resp.NextPage
 	}
 
 	return nil, nil // Not found
+}
+
+func issueCommentToPRComment(c *gogithub.IssueComment) *PRComment {
+	author := ""
+	if c.User != nil {
+		author = c.User.Login
+	}
+	return &PRComment{
+		ID:        c.ID,
+		Body:      c.Body,
+		Author:    author,
+		CreatedAt: c.CreatedAt,
+		UpdatedAt: c.UpdatedAt,
+	}
 }
 
 // WaitForChecks polls until all checks complete or timeout.
@@ -529,7 +486,10 @@ func (c *GitHubCollector) WaitForChecks(ctx context.Context, repo model.RepoRef,
 		return nil, err
 	}
 
-	sha := ghPR.GetHead().GetSHA()
+	sha := ""
+	if ghPR.Head != nil {
+		sha = ghPR.Head.SHA
+	}
 	pollInterval := 30 * time.Second
 
 	ghChecks, _, err := checks.WaitForChecks(ctx, c.client, repo.Owner, repo.Name, sha, timeout, pollInterval)
@@ -540,9 +500,9 @@ func (c *GitHubCollector) WaitForChecks(ctx context.Context, repo model.RepoRef,
 	var result []model.CheckRun
 	for _, cr := range ghChecks {
 		result = append(result, model.CheckRun{
-			Name:       cr.GetName(),
-			Status:     cr.GetStatus(),
-			Conclusion: cr.GetConclusion(),
+			Name:       cr.Name,
+			Status:     cr.Status,
+			Conclusion: cr.Conclusion,
 		})
 	}
 

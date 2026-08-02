@@ -1,12 +1,11 @@
 package collector
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 	"testing"
 	"time"
-
-	"github.com/google/go-github/v88/github"
 )
 
 func TestDefaultRateLimitConfig(t *testing.T) {
@@ -70,6 +69,9 @@ func TestRateLimiter_calculateBackoff(t *testing.T) {
 	}
 }
 
+// TestIsRateLimitError confirms IsRateLimitError delegates to
+// gogithub/errors.IsRateLimitError, which has its own coverage for the
+// go-github *RateLimitError / *AbuseRateLimitError cases.
 func TestIsRateLimitError(t *testing.T) {
 	tests := []struct {
 		name string
@@ -77,9 +79,7 @@ func TestIsRateLimitError(t *testing.T) {
 		want bool
 	}{
 		{"nil error", nil, false},
-		{"rate limit error", &github.RateLimitError{}, true},
-		{"abuse rate limit error", &github.AbuseRateLimitError{}, true},
-		{"generic error", &github.ErrorResponse{}, false},
+		{"generic error", errors.New("boom"), false},
 	}
 
 	for _, tt := range tests {
@@ -95,7 +95,7 @@ func TestIsRateLimitError(t *testing.T) {
 func TestIsRateLimitResponse(t *testing.T) {
 	tests := []struct {
 		name string
-		resp *github.Response
+		resp *http.Response
 		want bool
 	}{
 		{
@@ -105,37 +105,29 @@ func TestIsRateLimitResponse(t *testing.T) {
 		},
 		{
 			name: "rate limited (429)",
-			resp: &github.Response{
-				Response: &http.Response{
-					StatusCode: http.StatusTooManyRequests,
-				},
+			resp: &http.Response{
+				StatusCode: http.StatusTooManyRequests,
 			},
 			want: true,
 		},
 		{
 			name: "forbidden (403)",
-			resp: &github.Response{
-				Response: &http.Response{
-					StatusCode: http.StatusForbidden,
-				},
+			resp: &http.Response{
+				StatusCode: http.StatusForbidden,
 			},
 			want: true,
 		},
 		{
 			name: "success (200)",
-			resp: &github.Response{
-				Response: &http.Response{
-					StatusCode: http.StatusOK,
-				},
+			resp: &http.Response{
+				StatusCode: http.StatusOK,
 			},
 			want: false,
 		},
 		{
 			name: "not found (404)",
-			resp: &github.Response{
-				Response: &http.Response{
-					StatusCode: http.StatusNotFound,
-				},
+			resp: &http.Response{
+				StatusCode: http.StatusNotFound,
 			},
 			want: false,
 		},
@@ -154,7 +146,7 @@ func TestIsRateLimitResponse(t *testing.T) {
 func TestGetRateLimitRemaining(t *testing.T) {
 	tests := []struct {
 		name string
-		resp *github.Response
+		resp *http.Response
 		want int
 	}{
 		{
@@ -164,42 +156,34 @@ func TestGetRateLimitRemaining(t *testing.T) {
 		},
 		{
 			name: "valid remaining",
-			resp: &github.Response{
-				Response: &http.Response{
-					Header: http.Header{
-						"X-Ratelimit-Remaining": []string{"42"},
-					},
+			resp: &http.Response{
+				Header: http.Header{
+					"X-Ratelimit-Remaining": []string{"42"},
 				},
 			},
 			want: 42,
 		},
 		{
 			name: "zero remaining",
-			resp: &github.Response{
-				Response: &http.Response{
-					Header: http.Header{
-						"X-Ratelimit-Remaining": []string{"0"},
-					},
+			resp: &http.Response{
+				Header: http.Header{
+					"X-Ratelimit-Remaining": []string{"0"},
 				},
 			},
 			want: 0,
 		},
 		{
 			name: "missing header",
-			resp: &github.Response{
-				Response: &http.Response{
-					Header: http.Header{},
-				},
+			resp: &http.Response{
+				Header: http.Header{},
 			},
 			want: -1,
 		},
 		{
 			name: "invalid value",
-			resp: &github.Response{
-				Response: &http.Response{
-					Header: http.Header{
-						"X-Ratelimit-Remaining": []string{"invalid"},
-					},
+			resp: &http.Response{
+				Header: http.Header{
+					"X-Ratelimit-Remaining": []string{"invalid"},
 				},
 			},
 			want: -1,
