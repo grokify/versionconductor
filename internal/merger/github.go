@@ -4,8 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/google/go-github/v88/github"
-	"github.com/grokify/gogithub/auth"
+	"github.com/grokify/gogithub/clientv1"
 	"github.com/grokify/gogithub/pr"
 	"github.com/grokify/gogithub/repo"
 
@@ -14,13 +13,13 @@ import (
 
 // GitHubMerger implements Merger for GitHub.
 type GitHubMerger struct {
-	client *github.Client
+	client clientv1.Client
 }
 
 // NewGitHubMerger creates a new GitHub merger.
 func NewGitHubMerger(token string) (*GitHubMerger, error) {
 	ctx := context.Background()
-	client, err := auth.NewGitHubClient(ctx, token)
+	client, err := clientv1.NewClient(ctx, token)
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +30,7 @@ func NewGitHubMerger(token string) (*GitHubMerger, error) {
 
 // MergePR merges a pull request using the specified strategy.
 func (m *GitHubMerger) MergePR(ctx context.Context, repoRef model.RepoRef, prNumber int, strategy MergeStrategy, commitMessage string) (*MergeInfo, error) {
-	opts := &github.PullRequestOptions{
+	opts := &clientv1.MergePullRequestOptions{
 		MergeMethod: string(strategy),
 	}
 
@@ -45,9 +44,9 @@ func (m *GitHubMerger) MergePR(ctx context.Context, repoRef model.RepoRef, prNum
 	}
 
 	return &MergeInfo{
-		SHA:     result.GetSHA(),
-		Message: result.GetMessage(),
-		Merged:  result.GetMerged(),
+		SHA:     result.SHA,
+		Message: result.Message,
+		Merged:  result.Merged,
 	}, nil
 }
 
