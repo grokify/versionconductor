@@ -1316,6 +1316,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v0.4.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.4.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v0.3.0/" class="md-nav__link">
         
   
@@ -1521,60 +1549,78 @@
 <a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
 <a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="c1"># Keep branches</span>
 <a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>versionconductor<span class="w"> </span>merge<span class="w"> </span>--orgs<span class="w"> </span>myorg<span class="w"> </span>--delete-branch<span class="o">=</span><span class="nb">false</span><span class="w"> </span>--execute
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="c1"># Wait for pending checks to complete before merging</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>versionconductor<span class="w"> </span>merge<span class="w"> </span>--orgs<span class="w"> </span>myorg<span class="w"> </span>--wait-for-checks<span class="w"> </span>--checks-timeout<span class="w"> </span><span class="m">600</span><span class="w"> </span>--execute
 </code></pre></div>
 <h2 id="flags">Flags<a class="headerlink" href="#flags" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
 <th>Flag</th>
-<th>Short</th>
+<th>Default</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>--orgs</code></td>
-<td><code>-o</code></td>
+<td></td>
 <td>Organizations to scan</td>
 </tr>
 <tr>
 <td><code>--repos</code></td>
-<td><code>-r</code></td>
+<td></td>
 <td>Specific repos (owner/name)</td>
 </tr>
 <tr>
 <td><code>--profile</code></td>
-<td></td>
-<td>Merge profile</td>
-</tr>
-<tr>
-<td><code>--policy</code></td>
-<td></td>
-<td>Path to Cedar policy file/directory</td>
+<td><code>balanced</code></td>
+<td>Merge profile: aggressive, balanced, conservative</td>
 </tr>
 <tr>
 <td><code>--execute</code></td>
-<td></td>
+<td><code>false</code></td>
 <td>Actually merge PRs (default: dry-run)</td>
 </tr>
 <tr>
 <td><code>--strategy</code></td>
-<td></td>
+<td><code>squash</code></td>
 <td>Merge strategy (squash, merge, rebase)</td>
 </tr>
 <tr>
 <td><code>--delete-branch</code></td>
-<td></td>
-<td>Delete branch after merge (default: true)</td>
+<td><code>true</code></td>
+<td>Delete branch after merge</td>
 </tr>
 <tr>
 <td><code>--max-prs</code></td>
+<td><code>0</code></td>
+<td>Maximum PRs to merge (0 = no limit)</td>
+</tr>
+<tr>
+<td><code>--wait-for-checks</code></td>
+<td><code>false</code></td>
+<td>Wait for pending checks to complete</td>
+</tr>
+<tr>
+<td><code>--checks-timeout</code></td>
+<td><code>300</code></td>
+<td>Timeout in seconds for waiting on checks</td>
+</tr>
+<tr>
+<td><code>--update-type</code></td>
 <td></td>
-<td>Maximum PRs to merge</td>
+<td>Filter by update type: major, minor, patch</td>
+</tr>
+<tr>
+<td><code>--bot</code></td>
+<td></td>
+<td>Filter by dependency bot: renovate, dependabot</td>
 </tr>
 <tr>
 <td><code>--format</code></td>
-<td><code>-f</code></td>
+<td><code>table</code></td>
 <td>Output format</td>
 </tr>
 </tbody>
@@ -1605,10 +1651,11 @@
 <h2 id="safety-features">Safety Features<a class="headerlink" href="#safety-features" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Dry-run by default</strong> - Use <code>--execute</code> to actually merge</li>
-<li><strong>Policy evaluation</strong> - PRs must pass all policy gates</li>
+<li><strong>Profile evaluation</strong> - PRs must pass the selected merge profile's age, update-type, and CI-status gates</li>
 <li><strong>Rate limiting</strong> - Respects <code>--max-prs</code> limit</li>
 <li><strong>Conflict check</strong> - Only merges PRs without conflicts</li>
 </ul>
+<p>For Cedar-based policy evaluation (quarantine gates, decision outcomes, PR comments) instead of profiles, use <a href="../policy/"><code>policy evaluate</code></a>.</p>
 
 
 

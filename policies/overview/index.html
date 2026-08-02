@@ -1366,6 +1366,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v0.4.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.4.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v0.3.0/" class="md-nav__link">
         
   
@@ -1752,12 +1780,8 @@ policies also match. This provides a safe way to create blocklist rules.</p>
 </table>
 <p>See <a href="../gates/">Policy Gates</a> for details on each gate.</p>
 <h2 id="using-custom-policies">Using Custom Policies<a class="headerlink" href="#using-custom-policies" title="Permanent link">&para;</a></h2>
-<p>Load policies from a file or directory:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>versionconductor<span class="w"> </span>review<span class="w"> </span>--orgs<span class="w"> </span>myorg<span class="w"> </span>--policy<span class="w"> </span>./my-policies/
-</code></pre></div>
-<p>Or specify in config:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nt">policy</span><span class="p">:</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./policies/</span>
+<p>Cedar policies are evaluated via <code>policy evaluate</code>, not <code>review</code>/<code>merge</code> (which use built-in merge profiles instead — see <a href="../../commands/review/">review</a>). Load policies from a file or directory with <code>--policies</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>versionconductor<span class="w"> </span>policy<span class="w"> </span>evaluate<span class="w"> </span>--repo<span class="w"> </span>myorg/service-api<span class="w"> </span>--pr<span class="w"> </span><span class="m">123</span><span class="w"> </span>--policies<span class="w"> </span>./my-policies/
 </code></pre></div>
 <h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>

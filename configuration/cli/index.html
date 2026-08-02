@@ -763,6 +763,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Global Flags">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#observability-flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Observability flags
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -837,6 +854,17 @@
     <span class="md-ellipsis">
       
         graph
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#policy-evaluate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        policy evaluate
       
     </span>
   </a>
@@ -1366,6 +1394,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v0.4.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.4.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v0.3.0/" class="md-nav__link">
         
   
@@ -1485,6 +1541,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Global Flags">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#observability-flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Observability flags
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1565,6 +1638,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#policy-evaluate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        policy evaluate
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1608,7 +1692,6 @@
 <thead>
 <tr>
 <th>Flag</th>
-<th>Short</th>
 <th>Description</th>
 <th>Default</th>
 </tr>
@@ -1616,42 +1699,75 @@
 <tbody>
 <tr>
 <td><code>--token</code></td>
-<td><code>-t</code></td>
 <td>GitHub token</td>
 <td><code>$GITHUB_TOKEN</code></td>
 </tr>
 <tr>
 <td><code>--orgs</code></td>
-<td><code>-o</code></td>
 <td>Organizations to scan</td>
 <td>-</td>
 </tr>
 <tr>
 <td><code>--repos</code></td>
-<td><code>-r</code></td>
 <td>Specific repos (owner/name)</td>
 <td>-</td>
 </tr>
 <tr>
 <td><code>--format</code></td>
-<td><code>-f</code></td>
 <td>Output format</td>
 <td><code>table</code></td>
 </tr>
 <tr>
+<td><code>--dry-run</code></td>
+<td>Show what would happen without making changes</td>
+<td><code>false</code></td>
+</tr>
+<tr>
 <td><code>--verbose</code></td>
-<td><code>-v</code></td>
 <td>Enable verbose logging</td>
 <td><code>false</code></td>
 </tr>
 <tr>
 <td><code>--config</code></td>
-<td><code>-c</code></td>
 <td>Config file path</td>
-<td><code>.versionconductor.yaml</code></td>
+<td><code>$HOME/.versionconductor.yaml</code></td>
 </tr>
 </tbody>
 </table>
+<p>None of these flags have single-letter shorthands (e.g. there is no <code>-o</code> for <code>--orgs</code>) — always use the full <code>--flag</code> form.</p>
+<h3 id="observability-flags">Observability flags<a class="headerlink" href="#observability-flags" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--otel-enabled</code></td>
+<td>Enable OpenTelemetry observability</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>--otel-provider</code></td>
+<td>Observability provider: otlp, newrelic, datadog</td>
+<td><code>otlp</code></td>
+</tr>
+<tr>
+<td><code>--otel-endpoint</code></td>
+<td>OTLP endpoint (e.g., localhost:4317)</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>--otel-api-key</code></td>
+<td>API key for cloud providers</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<p>These can also be set via <code>observability:</code> in the config file or <code>VERSIONCONDUCTOR_OTEL_*</code> environment variables — see <a href="../file/">Configuration File</a>.</p>
 <h2 id="output-formats">Output Formats<a class="headerlink" href="#output-formats" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -1703,6 +1819,16 @@
 <td>-</td>
 </tr>
 <tr>
+<td><code>--min-age</code></td>
+<td>Minimum PR age in hours</td>
+<td><code>0</code></td>
+</tr>
+<tr>
+<td><code>--max-age</code></td>
+<td>Maximum PR age in hours (0 = no limit)</td>
+<td><code>0</code></td>
+</tr>
+<tr>
 <td><code>--include-archived</code></td>
 <td>Include archived repos</td>
 <td><code>false</code></td>
@@ -1712,11 +1838,17 @@
 <td>Include private repos</td>
 <td><code>true</code></td>
 </tr>
+<tr>
+<td><code>--output</code></td>
+<td>Output file (default: stdout)</td>
+<td>-</td>
+</tr>
 </tbody>
 </table>
 <h3 id="review">review<a class="headerlink" href="#review" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>versionconductor<span class="w"> </span>review<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </code></pre></div>
+<p>Decides approvals using the built-in merge profile (age, update type, CI status) — it does not evaluate Cedar policies. For Cedar-based evaluation, use <a href="#policy-evaluate"><code>policy evaluate</code></a> instead.</p>
 <table>
 <thead>
 <tr>
@@ -1728,23 +1860,28 @@
 <tbody>
 <tr>
 <td><code>--profile</code></td>
-<td>Merge profile to use</td>
+<td>Review profile: aggressive, balanced, conservative, quarantine</td>
 <td><code>balanced</code></td>
 </tr>
 <tr>
-<td><code>--policy</code></td>
-<td>Path to Cedar policy file/dir</td>
-<td>-</td>
-</tr>
-<tr>
 <td><code>--execute</code></td>
-<td>Actually approve PRs</td>
+<td>Actually add reviews</td>
 <td><code>false</code></td>
 </tr>
 <tr>
-<td><code>--max-prs</code></td>
-<td>Max PRs to review</td>
-<td><code>0</code> (unlimited)</td>
+<td><code>--update-type</code></td>
+<td>Filter by update type: major, minor, patch</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>--bot</code></td>
+<td>Filter by dependency bot: renovate, dependabot</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>--review-body</code></td>
+<td>Custom review body message</td>
+<td>-</td>
 </tr>
 </tbody>
 </table>
@@ -1762,13 +1899,8 @@
 <tbody>
 <tr>
 <td><code>--profile</code></td>
-<td>Merge profile to use</td>
+<td>Merge profile: aggressive, balanced, conservative</td>
 <td><code>balanced</code></td>
-</tr>
-<tr>
-<td><code>--policy</code></td>
-<td>Path to Cedar policy file/dir</td>
-<td>-</td>
 </tr>
 <tr>
 <td><code>--execute</code></td>
@@ -1777,7 +1909,7 @@
 </tr>
 <tr>
 <td><code>--strategy</code></td>
-<td>Merge strategy</td>
+<td>Merge strategy: merge, squash, rebase</td>
 <td><code>squash</code></td>
 </tr>
 <tr>
@@ -1787,8 +1919,28 @@
 </tr>
 <tr>
 <td><code>--max-prs</code></td>
-<td>Max PRs to merge</td>
-<td><code>0</code> (unlimited)</td>
+<td>Max PRs to merge (0 = no limit)</td>
+<td><code>0</code></td>
+</tr>
+<tr>
+<td><code>--wait-for-checks</code></td>
+<td>Wait for pending checks to complete</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>--checks-timeout</code></td>
+<td>Timeout in seconds for waiting on checks</td>
+<td><code>300</code></td>
+</tr>
+<tr>
+<td><code>--update-type</code></td>
+<td>Filter by update type: major, minor, patch</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>--bot</code></td>
+<td>Filter by dependency bot: renovate, dependabot</td>
+<td>-</td>
 </tr>
 </tbody>
 </table>
@@ -1810,31 +1962,45 @@
 <td><code>false</code></td>
 </tr>
 <tr>
+<td><code>--draft</code></td>
+<td>Create releases as drafts</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>--prerelease</code></td>
+<td>Mark releases as prereleases</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>--generate-notes</code></td>
+<td>Use GitHub's auto-generated release notes</td>
+<td><code>true</code></td>
+</tr>
+<tr>
 <td><code>--since</code></td>
-<td>Only PRs merged since date</td>
+<td>Only consider PRs merged since this date (YYYY-MM-DD)</td>
 <td>-</td>
 </tr>
 <tr>
-<td><code>--draft</code></td>
-<td>Create as draft releases</td>
-<td><code>false</code></td>
+<td><code>--min-prs</code></td>
+<td>Minimum number of merged PRs to trigger a release</td>
+<td><code>1</code></td>
+</tr>
+<tr>
+<td><code>--max-releases</code></td>
+<td>Maximum number of releases to create (0 = no limit)</td>
+<td><code>0</code></td>
 </tr>
 <tr>
 <td><code>--prefix</code></td>
 <td>Version prefix</td>
 <td><code>v</code></td>
 </tr>
-<tr>
-<td><code>--generate-notes</code></td>
-<td>Auto-generate release notes</td>
-<td><code>true</code></td>
-</tr>
 </tbody>
 </table>
 <h3 id="graph">graph<a class="headerlink" href="#graph" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>versionconductor<span class="w"> </span>graph<span class="w"> </span>&lt;subcommand&gt;<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </code></pre></div>
-<p>Subcommands:</p>
 <table>
 <thead>
 <tr>
@@ -1848,20 +2014,20 @@
 <td>Build dependency graph</td>
 </tr>
 <tr>
-<td><code>dependents</code></td>
+<td><code>dependents &lt;module&gt;</code></td>
 <td>Show dependents of a module</td>
 </tr>
 <tr>
-<td><code>dependencies</code></td>
+<td><code>dependencies &lt;module&gt;</code></td>
 <td>Show dependencies of a module</td>
 </tr>
 <tr>
 <td><code>order</code></td>
-<td>Show upgrade order</td>
+<td>Show upgrade order for managed modules</td>
 </tr>
 <tr>
-<td><code>stale</code></td>
-<td>Find stale dependencies</td>
+<td><code>stale &lt;module&gt; --min-version &lt;version&gt;</code></td>
+<td>Find modules using outdated versions</td>
 </tr>
 <tr>
 <td><code>stats</code></td>
@@ -1873,21 +2039,86 @@
 </tr>
 </tbody>
 </table>
+<p>Each subcommand has its own flags (e.g. <code>visualize</code> uses <code>--viz-format</code>, not the global <code>--format</code>), plus shared caching flags (<code>--cache</code>, <code>--cache-dir</code>, <code>--cache-ttl</code>, <code>--no-cache</code>). See <a href="../../commands/graph/">graph</a> for the full flag reference.</p>
+<h3 id="policy-evaluate">policy evaluate<a class="headerlink" href="#policy-evaluate" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>versionconductor<span class="w"> </span>policy<span class="w"> </span>evaluate<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+</code></pre></div>
+<p>Evaluates Cedar policies against a PR directly (independent of <code>review</code>/<code>merge</code>).</p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--repo</code></td>
+<td>Repository (owner/repo format)</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>--pr</code></td>
+<td>Pull request number</td>
+<td><code>0</code></td>
+</tr>
+<tr>
+<td><code>--policies</code></td>
+<td>Path to Cedar policies directory or file</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>--profile</code></td>
+<td>Merge profile: aggressive, balanced, conservative, quarantine</td>
+<td><code>balanced</code></td>
+</tr>
+<tr>
+<td><code>--stdin</code></td>
+<td>Read policy context from stdin as JSON instead of the GitHub API</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>--context-file</code></td>
+<td>Read policy context from a JSON file instead of the GitHub API</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>--action</code></td>
+<td>Action to evaluate: merge, review, release</td>
+<td><code>merge</code></td>
+</tr>
+<tr>
+<td><code>--comment</code></td>
+<td>Post the decision as a comment on the PR</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>--update-comment</code></td>
+<td>Update an existing comment instead of creating a new one</td>
+<td><code>true</code></td>
+</tr>
+</tbody>
+</table>
+<p>See <a href="../../commands/policy/">policy</a> for details.</p>
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Scan with filters</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>versionconductor<span class="w"> </span>scan<span class="w"> </span>--orgs<span class="w"> </span>myorg<span class="w"> </span>--bot<span class="w"> </span>dependabot<span class="w"> </span>--update-type<span class="w"> </span>patch
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># Review with Cedar policies</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>versionconductor<span class="w"> </span>review<span class="w"> </span>--orgs<span class="w"> </span>myorg<span class="w"> </span>--policy<span class="w"> </span>./policies/<span class="w"> </span>--profile<span class="w"> </span>quarantine
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="c1"># Merge with squash strategy</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>versionconductor<span class="w"> </span>merge<span class="w"> </span>--orgs<span class="w"> </span>myorg<span class="w"> </span>--strategy<span class="w"> </span>squash<span class="w"> </span>--execute
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="c1"># Create draft releases</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>versionconductor<span class="w"> </span>release<span class="w"> </span>--orgs<span class="w"> </span>myorg<span class="w"> </span>--draft<span class="w"> </span>--execute
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>
-<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="c1"># Visualize dependencies</span>
-<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>versionconductor<span class="w"> </span>graph<span class="w"> </span>visualize<span class="w"> </span>--orgs<span class="w"> </span>myorg<span class="w"> </span>--format<span class="w"> </span>mermaid
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Scan with filters</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>versionconductor<span class="w"> </span>scan<span class="w"> </span>--orgs<span class="w"> </span>myorg<span class="w"> </span>--bot<span class="w"> </span>dependabot<span class="w"> </span>--update-type<span class="w"> </span>patch
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># Review with a profile</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>versionconductor<span class="w"> </span>review<span class="w"> </span>--orgs<span class="w"> </span>myorg<span class="w"> </span>--profile<span class="w"> </span>quarantine<span class="w"> </span>--execute
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="c1"># Evaluate Cedar policies directly and post the decision as a PR comment</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>versionconductor<span class="w"> </span>policy<span class="w"> </span>evaluate<span class="w"> </span>--repo<span class="w"> </span>myorg/service-api<span class="w"> </span>--pr<span class="w"> </span><span class="m">123</span><span class="w"> </span>--profile<span class="w"> </span>quarantine<span class="w"> </span>--comment
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="c1"># Merge with squash strategy</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>versionconductor<span class="w"> </span>merge<span class="w"> </span>--orgs<span class="w"> </span>myorg<span class="w"> </span>--strategy<span class="w"> </span>squash<span class="w"> </span>--execute
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="c1"># Create draft releases</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>versionconductor<span class="w"> </span>release<span class="w"> </span>--orgs<span class="w"> </span>myorg<span class="w"> </span>--draft<span class="w"> </span>--execute
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="c1"># Visualize dependencies as a Mermaid diagram</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>versionconductor<span class="w"> </span>graph<span class="w"> </span>visualize<span class="w"> </span>--orgs<span class="w"> </span>myorg<span class="w"> </span>--viz-format<span class="w"> </span>mermaid
 </code></pre></div>
 
 

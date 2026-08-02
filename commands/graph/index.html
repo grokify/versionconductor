@@ -1245,13 +1245,85 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#common-flags" class="md-nav__link">
+  <a href="#flags" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Common Flags
+        Flags
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Flags">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#global-apply-to-all-subcommands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global (apply to all subcommands)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#caching-apply-to-all-graph-subcommands-except-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caching (apply to all graph subcommands except build)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#order_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        order
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stale_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        stale
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#visualize_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        visualize
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1352,6 +1424,34 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/v0.4.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.4.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -1559,13 +1659,85 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#common-flags" class="md-nav__link">
+  <a href="#flags" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Common Flags
+        Flags
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Flags">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#global-apply-to-all-subcommands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global (apply to all subcommands)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#caching-apply-to-all-graph-subcommands-except-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caching (apply to all graph subcommands except build)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#order_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        order
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stale_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        stale
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#visualize_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        visualize
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1591,6 +1763,7 @@
 
 <h1 id="graph">graph<a class="headerlink" href="#graph" title="Permanent link">&para;</a></h1>
 <p>Analyze dependency relationships across repositories.</p>
+<p>All <code>graph</code> subcommands (except <code>build</code>) load a graph via cache if available, or build one live from GitHub. All require <code>--orgs</code>.</p>
 <h2 id="subcommands">Subcommands<a class="headerlink" href="#subcommands" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -1605,20 +1778,20 @@
 <td>Build dependency graph</td>
 </tr>
 <tr>
-<td><code>dependents</code></td>
+<td><code>dependents &lt;module&gt;</code></td>
 <td>Show modules that depend on a module</td>
 </tr>
 <tr>
-<td><code>dependencies</code></td>
+<td><code>dependencies &lt;module&gt;</code></td>
 <td>Show dependencies of a module</td>
 </tr>
 <tr>
 <td><code>order</code></td>
-<td>Show upgrade order for a module</td>
+<td>Show upgrade order for managed modules</td>
 </tr>
 <tr>
-<td><code>stale</code></td>
-<td>Find stale dependencies</td>
+<td><code>stale &lt;module&gt; --min-version &lt;version&gt;</code></td>
+<td>Find modules using outdated versions of a dependency</td>
 </tr>
 <tr>
 <td><code>stats</code></td>
@@ -1633,22 +1806,31 @@
 <h2 id="build">build<a class="headerlink" href="#build" title="Permanent link">&para;</a></h2>
 <p>Build the dependency graph from repositories:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>versionconductor<span class="w"> </span>graph<span class="w"> </span>build<span class="w"> </span>--orgs<span class="w"> </span>myorg
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1"># Multiple orgs, filter by language</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>versionconductor<span class="w"> </span>graph<span class="w"> </span>build<span class="w"> </span>--orgs<span class="w"> </span>grokify,agentplexus<span class="w"> </span>--languages<span class="w"> </span>go
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="c1"># Write graph JSON to a file</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>versionconductor<span class="w"> </span>graph<span class="w"> </span>build<span class="w"> </span>--orgs<span class="w"> </span>myorg<span class="w"> </span>--format<span class="w"> </span>json<span class="w"> </span>--output<span class="w"> </span>graph.json
 </code></pre></div>
 <h2 id="dependents">dependents<a class="headerlink" href="#dependents" title="Permanent link">&para;</a></h2>
-<p>Show which modules depend on a given module:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>versionconductor<span class="w"> </span>graph<span class="w"> </span>dependents<span class="w"> </span>--orgs<span class="w"> </span>myorg<span class="w"> </span>--module<span class="w"> </span>github.com/myorg/shared-lib
+<p>Show which modules depend on a given module (the module is a positional argument, not a flag):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>versionconductor<span class="w"> </span>graph<span class="w"> </span>dependents<span class="w"> </span>github.com/grokify/mogo<span class="w"> </span>--orgs<span class="w"> </span>myorg
 </code></pre></div>
 <h2 id="dependencies">dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h2>
 <p>Show dependencies of a module:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>versionconductor<span class="w"> </span>graph<span class="w"> </span>dependencies<span class="w"> </span>--orgs<span class="w"> </span>myorg<span class="w"> </span>--module<span class="w"> </span>github.com/myorg/api-server
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>versionconductor<span class="w"> </span>graph<span class="w"> </span>dependencies<span class="w"> </span>github.com/grokify/gogithub<span class="w"> </span>--orgs<span class="w"> </span>myorg
 </code></pre></div>
 <h2 id="order">order<a class="headerlink" href="#order" title="Permanent link">&para;</a></h2>
-<p>Show the order to upgrade modules when updating a dependency:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>versionconductor<span class="w"> </span>graph<span class="w"> </span>order<span class="w"> </span>--orgs<span class="w"> </span>myorg<span class="w"> </span>--module<span class="w"> </span>github.com/myorg/shared-lib
+<p>Show the topological order to upgrade managed modules in:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>versionconductor<span class="w"> </span>graph<span class="w"> </span>order<span class="w"> </span>--orgs<span class="w"> </span>myorg
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c1"># Filter by organization</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>versionconductor<span class="w"> </span>graph<span class="w"> </span>order<span class="w"> </span>--orgs<span class="w"> </span>myorg<span class="w"> </span>--org<span class="w"> </span>github.com/grokify
 </code></pre></div>
 <h2 id="stale">stale<a class="headerlink" href="#stale" title="Permanent link">&para;</a></h2>
-<p>Find modules using outdated versions of dependencies:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>versionconductor<span class="w"> </span>graph<span class="w"> </span>stale<span class="w"> </span>--orgs<span class="w"> </span>myorg
+<p>Find managed modules using an outdated version of a dependency. Both the module (positional argument) and <code>--min-version</code> are required:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>versionconductor<span class="w"> </span>graph<span class="w"> </span>stale<span class="w"> </span>github.com/grokify/gogithub<span class="w"> </span>--min-version<span class="w"> </span>v0.7.0<span class="w"> </span>--orgs<span class="w"> </span>myorg
 </code></pre></div>
 <h2 id="stats">stats<a class="headerlink" href="#stats" title="Permanent link">&para;</a></h2>
 <p>Show statistics about the dependency graph:</p>
@@ -1662,15 +1844,19 @@
 <a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>Max depth: 5
 </code></pre></div>
 <h2 id="visualize">visualize<a class="headerlink" href="#visualize" title="Permanent link">&para;</a></h2>
-<p>Generate a visual representation of the graph:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># DOT format (Graphviz)</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>versionconductor<span class="w"> </span>graph<span class="w"> </span>visualize<span class="w"> </span>--orgs<span class="w"> </span>myorg<span class="w"> </span>--format<span class="w"> </span>dot<span class="w"> </span>&gt;<span class="w"> </span>deps.dot
+<p>Generate a visual representation of the graph. Use <code>--viz-format</code> (not the global <code>--format</code>, which controls table/json/markdown/csv output elsewhere):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># DOT format (Graphviz), the default</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>versionconductor<span class="w"> </span>graph<span class="w"> </span>visualize<span class="w"> </span>--orgs<span class="w"> </span>myorg<span class="w"> </span>&gt;<span class="w"> </span>deps.dot
 <a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>dot<span class="w"> </span>-Tpng<span class="w"> </span>deps.dot<span class="w"> </span>-o<span class="w"> </span>deps.png
 <a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
 <a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="c1"># Mermaid format</span>
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>versionconductor<span class="w"> </span>graph<span class="w"> </span>visualize<span class="w"> </span>--orgs<span class="w"> </span>myorg<span class="w"> </span>--format<span class="w"> </span>mermaid<span class="w"> </span>&gt;<span class="w"> </span>deps.md
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>versionconductor<span class="w"> </span>graph<span class="w"> </span>visualize<span class="w"> </span>--orgs<span class="w"> </span>myorg<span class="w"> </span>--viz-format<span class="w"> </span>mermaid<span class="w"> </span>&gt;<span class="w"> </span>deps.md
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="c1"># Include external (unmanaged) dependencies, change layout direction</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>versionconductor<span class="w"> </span>graph<span class="w"> </span>visualize<span class="w"> </span>--orgs<span class="w"> </span>myorg<span class="w"> </span>--show-external<span class="w"> </span>--direction<span class="w"> </span>LR
 </code></pre></div>
-<h2 id="common-flags">Common Flags<a class="headerlink" href="#common-flags" title="Permanent link">&para;</a></h2>
+<h2 id="flags">Flags<a class="headerlink" href="#flags" title="Permanent link">&para;</a></h2>
+<h3 id="global-apply-to-all-subcommands">Global (apply to all subcommands)<a class="headerlink" href="#global-apply-to-all-subcommands" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
@@ -1681,23 +1867,140 @@
 <tbody>
 <tr>
 <td><code>--orgs</code></td>
-<td>Organizations to include</td>
+<td>Organizations to include (required)</td>
 </tr>
 <tr>
 <td><code>--repos</code></td>
 <td>Specific repos</td>
 </tr>
 <tr>
-<td><code>--language</code></td>
-<td>Filter by language (go, typescript, etc.)</td>
+<td><code>--token</code></td>
+<td>GitHub token (or set <code>GITHUB_TOKEN</code>)</td>
 </tr>
 <tr>
+<td><code>--format</code></td>
+<td>Output format: table, json, markdown, csv</td>
+</tr>
+</tbody>
+</table>
+<h3 id="caching-apply-to-all-graph-subcommands-except-build">Caching (apply to all <code>graph</code> subcommands except <code>build</code>)<a class="headerlink" href="#caching-apply-to-all-graph-subcommands-except-build" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
 <td><code>--cache</code></td>
-<td>Enable caching</td>
+<td><code>true</code></td>
+<td>Enable caching of API responses</td>
 </tr>
 <tr>
 <td><code>--cache-dir</code></td>
+<td>system temp</td>
 <td>Cache directory</td>
+</tr>
+<tr>
+<td><code>--cache-ttl</code></td>
+<td><code>1h</code></td>
+<td>Cache TTL duration</td>
+</tr>
+<tr>
+<td><code>--no-cache</code></td>
+<td><code>false</code></td>
+<td>Disable caching</td>
+</tr>
+</tbody>
+</table>
+<h3 id="build_1"><code>build</code><a class="headerlink" href="#build_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--languages</code></td>
+<td><code>go</code></td>
+<td>Languages to scan: go, typescript, swift</td>
+</tr>
+<tr>
+<td><code>--output</code></td>
+<td>stdout</td>
+<td>Output file for graph JSON</td>
+</tr>
+</tbody>
+</table>
+<h3 id="order_1"><code>order</code><a class="headerlink" href="#order_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--org</code></td>
+<td>Filter by organization</td>
+</tr>
+</tbody>
+</table>
+<h3 id="stale_1"><code>stale</code><a class="headerlink" href="#stale_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--min-version</code></td>
+<td>Minimum required version (required)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="visualize_1"><code>visualize</code><a class="headerlink" href="#visualize_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--viz-format</code></td>
+<td><code>dot</code></td>
+<td>Output format: dot, mermaid</td>
+</tr>
+<tr>
+<td><code>--show-external</code></td>
+<td><code>false</code></td>
+<td>Include external dependencies</td>
+</tr>
+<tr>
+<td><code>--show-versions</code></td>
+<td><code>true</code></td>
+<td>Show version labels on edges</td>
+</tr>
+<tr>
+<td><code>--cluster</code></td>
+<td><code>true</code></td>
+<td>Cluster nodes by organization</td>
+</tr>
+<tr>
+<td><code>--direction</code></td>
+<td><code>TB</code></td>
+<td>Layout direction: TB, LR, BT, RL</td>
 </tr>
 </tbody>
 </table>
