@@ -3,9 +3,9 @@ package releaser
 import (
 	"context"
 	"fmt"
+	"time"
 
-	"github.com/google/go-github/v88/github"
-	"github.com/grokify/gogithub/auth"
+	"github.com/grokify/gogithub/clientv1"
 	"github.com/grokify/gogithub/release"
 	"github.com/grokify/gogithub/tag"
 
@@ -14,13 +14,13 @@ import (
 
 // GitHubReleaser implements Releaser for GitHub.
 type GitHubReleaser struct {
-	client *github.Client
+	client clientv1.Client
 }
 
 // NewGitHubReleaser creates a new GitHub releaser.
 func NewGitHubReleaser(token string) (*GitHubReleaser, error) {
 	ctx := context.Background()
-	client, err := auth.NewGitHubClient(ctx, token)
+	client, err := clientv1.NewClient(ctx, token)
 	if err != nil {
 		return nil, err
 	}
@@ -31,34 +31,36 @@ func NewGitHubReleaser(token string) (*GitHubReleaser, error) {
 
 // CreateRelease creates a new release for a repository.
 func (r *GitHubReleaser) CreateRelease(ctx context.Context, req *model.ReleaseRequest) (*model.Release, error) {
-	ghRelease := &github.RepositoryRelease{
-		TagName:              github.Ptr(req.TagName),
-		Name:                 github.Ptr(req.Name),
-		Body:                 github.Ptr(req.Body),
-		Draft:                github.Ptr(req.Draft),
-		Prerelease:           github.Ptr(req.Prerelease),
-		GenerateReleaseNotes: github.Ptr(req.GenerateNotes),
+	input := &clientv1.CreateReleaseInput{
+		TagName:              req.TagName,
+		TargetCommitish:      req.TargetCommitish,
+		Name:                 req.Name,
+		Body:                 req.Body,
+		Draft:                req.Draft,
+		Prerelease:           req.Prerelease,
+		GenerateReleaseNotes: req.GenerateNotes,
 	}
 
-	if req.TargetCommitish != "" {
-		ghRelease.TargetCommitish = github.Ptr(req.TargetCommitish)
-	}
-
-	created, err := release.CreateRelease(ctx, r.client, req.Repo.Owner, req.Repo.Name, ghRelease)
+	created, err := release.CreateRelease(ctx, r.client, req.Repo.Owner, req.Repo.Name, input)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create release: %w", err)
 	}
 
+	publishedAt := time.Time{}
+	if created.PublishedAt != nil {
+		publishedAt = *created.PublishedAt
+	}
+
 	return &model.Release{
-		ID:          created.GetID(),
-		TagName:     created.GetTagName(),
-		Name:        created.GetName(),
-		Body:        created.GetBody(),
-		Draft:       created.GetDraft(),
-		Prerelease:  created.GetPrerelease(),
-		CreatedAt:   created.GetCreatedAt().Time,
-		PublishedAt: created.GetPublishedAt().Time,
-		HTMLURL:     created.GetHTMLURL(),
+		ID:          created.ID,
+		TagName:     created.TagName,
+		Name:        created.Name,
+		Body:        created.Body,
+		Draft:       created.Draft,
+		Prerelease:  created.Prerelease,
+		CreatedAt:   created.CreatedAt,
+		PublishedAt: publishedAt,
+		HTMLURL:     created.HTMLURL,
 		Repo:        req.Repo,
 	}, nil
 }
@@ -90,10 +92,10 @@ func (r *GitHubReleaser) GetTagSHA(ctx context.Context, repo model.RepoRef, tagN
 
 // GetDefaultBranchSHA returns the SHA of the default branch HEAD.
 func (r *GitHubReleaser) GetDefaultBranchSHA(ctx context.Context, repo model.RepoRef, branch string) (string, error) {
-	ref, _, err := r.client.Git.GetRef(ctx, repo.Owner, repo.Name, "heads/"+branch)
+	sha, err := r.client.GetBranchSHA(ctx, repo.Owner, repo.Name, branch)
 	if err != nil {
 		return "", fmt.Errorf("failed to get branch ref: %w", err)
 	}
 
-	return ref.GetObject().GetSHA(), nil
+	return sha, nil
 }
