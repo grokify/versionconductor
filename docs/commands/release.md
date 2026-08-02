@@ -29,16 +29,19 @@ versionconductor release --orgs myorg --prefix "" --execute  # No prefix
 
 ## Flags
 
-| Flag | Short | Description |
-|------|-------|-------------|
-| `--orgs` | `-o` | Organizations to scan |
-| `--repos` | `-r` | Specific repos (owner/name) |
-| `--execute` | | Actually create releases (default: dry-run) |
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--orgs` | | Organizations to scan |
+| `--repos` | | Specific repos (owner/name) |
+| `--execute` | `false` | Actually create releases (default: dry-run) |
 | `--since` | | Only PRs merged since date (YYYY-MM-DD) |
-| `--draft` | | Create as draft releases |
-| `--prefix` | | Version prefix (default: "v") |
-| `--generate-notes` | | Auto-generate release notes (default: true) |
-| `--format` | `-f` | Output format |
+| `--draft` | `false` | Create as draft releases |
+| `--prerelease` | `false` | Mark releases as prereleases |
+| `--prefix` | `v` | Version prefix |
+| `--generate-notes` | `true` | Use GitHub's auto-generated release notes |
+| `--min-prs` | `1` | Minimum number of merged PRs to trigger a release |
+| `--max-releases` | `0` | Maximum number of releases to create (0 = no limit) |
+| `--format` | `table` | Output format |
 
 ## Version Bumping
 

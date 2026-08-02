@@ -29,15 +29,18 @@ versionconductor scan --orgs myorg --format json
 
 ## Flags
 
-| Flag | Short | Description |
-|------|-------|-------------|
-| `--orgs` | `-o` | Organizations to scan |
-| `--repos` | `-r` | Specific repos (owner/name) |
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--orgs` | | Organizations to scan |
+| `--repos` | | Specific repos (owner/name) |
 | `--bot` | | Filter by bot (dependabot, renovate) |
 | `--update-type` | | Filter by type (patch, minor, major) |
-| `--format` | `-f` | Output format (table, json, markdown, csv) |
-| `--include-archived` | | Include archived repos |
-| `--include-private` | | Include private repos (default: true) |
+| `--format` | `table` | Output format (table, json, markdown, csv) |
+| `--min-age` | `0` | Minimum PR age in hours |
+| `--max-age` | `0` | Maximum PR age in hours (0 = no limit) |
+| `--include-archived` | `false` | Include archived repos |
+| `--include-private` | `true` | Include private repos |
+| `--output` | stdout | Output file |
 
 ## Output
 

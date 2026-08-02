@@ -20,21 +20,22 @@ versionconductor review --orgs myorg --execute
 # Use specific profile
 versionconductor review --orgs myorg --profile quarantine --execute
 
-# Use Cedar policies
-versionconductor review --orgs myorg --policy ./policies/ --execute
+# Only approve patch updates from a specific bot
+versionconductor review --orgs myorg --update-type patch --bot dependabot --execute
 ```
 
 ## Flags
 
-| Flag | Short | Description |
-|------|-------|-------------|
-| `--orgs` | `-o` | Organizations to scan |
-| `--repos` | `-r` | Specific repos (owner/name) |
-| `--profile` | | Merge profile (default: balanced) |
-| `--policy` | | Path to Cedar policy file/directory |
-| `--execute` | | Actually approve PRs (default: dry-run) |
-| `--max-prs` | | Maximum PRs to review |
-| `--format` | `-f` | Output format |
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--orgs` | | Organizations to scan |
+| `--repos` | | Specific repos (owner/name) |
+| `--profile` | `balanced` | Review profile: aggressive, balanced, conservative, quarantine |
+| `--execute` | `false` | Actually add reviews (default: dry-run) |
+| `--update-type` | | Filter by update type: major, minor, patch |
+| `--bot` | | Filter by dependency bot: renovate, dependabot |
+| `--review-body` | | Custom review body message |
+| `--format` | `table` | Output format |
 
 ## Profiles
 
@@ -45,12 +46,8 @@ versionconductor review --orgs myorg --policy ./policies/ --execute
 | conservative | 48h | Patch only |
 | quarantine | 5 days | Patch + Minor |
 
-## Policy Evaluation
+## Profile vs. Cedar Policy Evaluation
 
-When `--policy` is specified, Cedar policies are loaded and evaluated. The PR is approved only if:
+`review` decides approvals using the built-in merge profile above (age, update type, CI status) — it does not load Cedar policies. For Cedar-based policy evaluation (quarantine gates, decision outcomes, PR comments), use [`policy evaluate`](policy.md) instead.
 
-1. A `permit` policy matches
-2. No `forbid` policy matches
-3. All policy conditions are satisfied
-
-See [Cedar Policies](../policies/overview.md) for details.
+See [Cedar Policies](../policies/overview.md) for details on the Cedar-based approach.

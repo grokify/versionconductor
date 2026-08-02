@@ -122,17 +122,10 @@ See [Policy Gates](gates.md) for details on each gate.
 
 ## Using Custom Policies
 
-Load policies from a file or directory:
+Cedar policies are evaluated via `policy evaluate`, not `review`/`merge` (which use built-in merge profiles instead — see [review](../commands/review.md)). Load policies from a file or directory with `--policies`:
 
 ```bash
-versionconductor review --orgs myorg --policy ./my-policies/
-```
-
-Or specify in config:
-
-```yaml
-policy:
-  path: ./policies/
+versionconductor policy evaluate --repo myorg/service-api --pr 123 --policies ./my-policies/
 ```
 
 ## Next Steps

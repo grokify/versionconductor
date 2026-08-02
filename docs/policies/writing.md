@@ -208,17 +208,10 @@ when { context.pr.ageDays < 5 };
 
 ## Loading Custom Policies
 
-### CLI
+Cedar policies are evaluated via `policy evaluate` (`review`/`merge` use built-in merge profiles instead):
 
 ```bash
-versionconductor review --orgs myorg --policy ./my-policies/
-```
-
-### Config File
-
-```yaml
-policy:
-  path: ./policies/
+versionconductor policy evaluate --repo myorg/service-api --pr 123 --policies ./my-policies/
 ```
 
 ### Directory Structure
