@@ -7,6 +7,62 @@
   "maintainers": ["plexusone"],
   "releases": [
     {
+      "version": "v0.4.0",
+      "date": "2026-08-02",
+      "highlights": [
+        { "description": "**Cedar-based policy engine**: dependency PR quarantine/approval decisions are now evaluated against Cedar policy bundles, with structured decision outcomes and human-readable comment formatting", "commit": "b35eb68" },
+        { "description": "**GitHubCollector, GitHubMerger, GitHubReleaser, and the dependency graph Builder migrated off go-github onto `gogithub/clientv1.Client`**; `github.com/google/go-github` is now only a transitive dependency", "commit": "3205461" },
+        { "description": "**GitHub App and `GITHUB_TOKEN` authentication** for CI usage, plus structured logging via `omniobserve`", "commit": "cf2de1f" }
+      ],
+      "added": [
+        { "description": "[policy] Cedar policy engine for evaluating dependency PRs", "commit": "b35eb68" },
+        { "description": "[policy] Cedar policies split into bundles by concern", "commit": "74d28f9" },
+        { "description": "[policy] Decision outcomes and enhanced `PolicyDecision`", "commit": "da183c8" },
+        { "description": "[policy] Quarantine profile for the N+5 rule", "commit": "9f4d4d0" },
+        { "description": "[policy] Decision comment formatter", "commit": "98ff658" },
+        { "description": "[cmd] `policy evaluate` CLI command", "commit": "d1e3ef7" },
+        { "description": "[collector] PR comment methods (create, update, find-by-marker)", "commit": "6a99522" },
+        { "description": "[collector] go.mod diff analysis for dependency PRs", "commit": "264ca2e" },
+        { "description": "[collector] GitHub API rate limit handling", "commit": "3ba87ea" },
+        { "description": "[observability] Structured logging via `omniobserve`", "commit": "1652eaf" },
+        { "description": "[ci] GitHub App and `GITHUB_TOKEN` authentication support", "commit": "cf2de1f" },
+        { "description": "[deps] `cedar-go` v1.8.0 for policy evaluation", "commit": "4811e81" }
+      ],
+      "changed": [
+        { "description": "[collector] Migrated `GitHubCollector` off go-github onto `gogithub/clientv1.Client`", "commit": "3205461" },
+        { "description": "[graph] Migrated the dependency graph `Builder` off go-github", "commit": "058c7d3" },
+        { "description": "[merger] Migrated `GitHubMerger` off go-github", "commit": "795dc8e" },
+        { "description": "[releaser] Migrated `GitHubReleaser` off go-github", "commit": "87026dc" },
+        { "description": "[ci] Renamed docs workflow to match the reusable workflow", "commit": "339fab1" }
+      ],
+      "tests": [
+        { "description": "Added GitHub Action integration tests", "commit": "41b4e44" },
+        { "description": "Added comprehensive unit tests for core packages", "commit": "c8eda69" },
+        { "description": "Added tests for the Cedar engine and decision outcomes", "commit": "25951b8" }
+      ],
+      "documentation": [
+        { "description": "Added an MkDocs site with Cedar policy documentation", "commit": "03bc348" },
+        { "description": "Updated README with new policy features and UTF-8 feature icons", "commit": "5285d52" },
+        { "description": "Switched MkDocs to the PlexusOne unified theme", "commit": "1327f40" },
+        { "description": "Added a GitHub App creation guide, including a web UI option for adding secrets", "commit": "30575b8" },
+        { "description": "Added JSON Schema and configuration documentation", "commit": "c64b46f" },
+        { "description": "Added a documentation deployment workflow", "commit": "ecb6969" },
+        { "description": "Marked Phase 2 roadmap items complete", "commit": "3a16c17" },
+        { "description": "Fixed CLI flag reference drift across `docs/commands/*.md` and `docs/configuration/cli.md`: removed fabricated flags/shorthands, added real ones, and corrected two examples showing a nonexistent `review --policy` flag (Cedar policies are only evaluated via `policy evaluate --policies`)", "commit": "2cd55a5" }
+      ],
+      "dependencies": [
+        { "description": "Upgraded `github.com/grokify/gogithub` to v0.17.0 (from v0.13.0, via an intermediate v0.14.0 dependabot bump)", "commit": "3205461" },
+        { "description": "Bumped `github.com/plexusone/omniobserve` from v0.11.0 to v0.12.0", "commit": "d6b70ef" },
+        { "description": "Bumped `actions/checkout` from v4 to v7 and `actions/setup-go` from v6 to v7", "commit": "94bdbaa" },
+        { "description": "Bumped `golangci/golangci-lint-action` from v8 to v9", "commit": "0197971" },
+        { "description": "Updated go.mod dependencies", "commit": "c950b0b" }
+      ],
+      "internal": [
+        { "description": "Added a go-dependency-automerge workflow", "commit": "341154d" },
+        { "description": "Added MkDocs build output and `IDEATION_CHAT*.md` to .gitignore", "commit": "0222d03" }
+      ]
+    },
+    {
       "version": "v0.3.0",
       "date": "2026-06-22",
       "highlights": [
