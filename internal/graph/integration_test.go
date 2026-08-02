@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/google/go-github/v88/github"
+	"github.com/grokify/gogithub/clientv1"
 )
 
 // mustEncode encodes v as JSON to w, panicking on error.
@@ -40,16 +40,35 @@ func mockGitHubServer(t *testing.T, handlers map[string]http.HandlerFunc) *httpt
 	}))
 }
 
+// mockRepo mirrors the fields of GitHub's REST API repository object that
+// the graph builder reads, without depending on go-github's types directly.
+type mockRepo struct {
+	Name          string    `json:"name"`
+	Owner         mockOwner `json:"owner"`
+	FullName      string    `json:"full_name"`
+	DefaultBranch string    `json:"default_branch"`
+	Language      string    `json:"language"`
+}
+
+type mockOwner struct {
+	Login string `json:"login"`
+}
+
+// mockContent mirrors GitHub's REST API repository-content response.
+type mockContent struct {
+	Content  string `json:"content"`
+	Encoding string `json:"encoding"`
+	Type     string `json:"type"`
+}
+
 // makeRepoResponse creates a GitHub repository response.
-func makeRepoResponse(owner, name string) *github.Repository {
-	return &github.Repository{
-		Name: github.Ptr(name),
-		Owner: &github.User{
-			Login: github.Ptr(owner),
-		},
-		FullName:      github.Ptr(owner + "/" + name),
-		DefaultBranch: github.Ptr("main"),
-		Language:      github.Ptr("Go"),
+func makeRepoResponse(owner, name string) mockRepo {
+	return mockRepo{
+		Name:          name,
+		Owner:         mockOwner{Login: owner},
+		FullName:      owner + "/" + name,
+		DefaultBranch: "main",
+		Language:      "Go",
 	}
 }
 
@@ -75,7 +94,10 @@ func makeGoModContent(modulePath string, deps []string) string {
 
 // newBuilderWithMockServer creates a builder with a mock GitHub client.
 func newBuilderWithMockServer(server *httptest.Server) *Builder {
-	client, err := github.NewClient(github.WithEnterpriseURLs(server.URL+"/", server.URL+"/"))
+	client, err := clientv1.NewClientWithOptions(context.Background(), clientv1.ClientOptions{
+		BaseURL:   server.URL + "/",
+		UploadURL: server.URL + "/",
+	})
 	if err != nil {
 		panic(fmt.Sprintf("failed to create GitHub client: %v", err))
 	}
@@ -86,7 +108,7 @@ func TestBuilder_Build_Integration(t *testing.T) {
 	// Set up mock handlers
 	handlers := map[string]http.HandlerFunc{
 		"/api/v3/users/testorg/repos": func(w http.ResponseWriter, r *http.Request) {
-			repos := []*github.Repository{
+			repos := []mockRepo{
 				makeRepoResponse("testorg", "mogo"),
 				makeRepoResponse("testorg", "gogithub"),
 			}
@@ -94,19 +116,21 @@ func TestBuilder_Build_Integration(t *testing.T) {
 			mustEncode(w, repos)
 		},
 		"/api/v3/repos/testorg/mogo/contents/go.mod": func(w http.ResponseWriter, r *http.Request) {
-			content := &github.RepositoryContent{
-				Content:  github.Ptr(makeGoModContent("github.com/testorg/mogo", nil)),
-				Encoding: github.Ptr("base64"),
+			content := &mockContent{
+				Content:  makeGoModContent("github.com/testorg/mogo", nil),
+				Encoding: "base64",
+				Type:     "file",
 			}
 			w.Header().Set("Content-Type", "application/json")
 			mustEncode(w, content)
 		},
 		"/api/v3/repos/testorg/gogithub/contents/go.mod": func(w http.ResponseWriter, r *http.Request) {
-			content := &github.RepositoryContent{
-				Content: github.Ptr(makeGoModContent("github.com/testorg/gogithub", []string{
+			content := &mockContent{
+				Content: makeGoModContent("github.com/testorg/gogithub", []string{
 					"github.com/testorg/mogo v0.70.0",
-				})),
-				Encoding: github.Ptr("base64"),
+				}),
+				Encoding: "base64",
+				Type:     "file",
 			}
 			w.Header().Set("Content-Type", "application/json")
 			mustEncode(w, content)
@@ -167,7 +191,7 @@ func TestBuilder_Build_NoGoMod(t *testing.T) {
 	// Repo without go.mod should be skipped
 	handlers := map[string]http.HandlerFunc{
 		"/api/v3/users/testorg/repos": func(w http.ResponseWriter, r *http.Request) {
-			repos := []*github.Repository{
+			repos := []mockRepo{
 				makeRepoResponse("testorg", "docs-only"),
 			}
 			w.Header().Set("Content-Type", "application/json")
@@ -249,33 +273,35 @@ func TestBuilder_Build_MultipleOrgs(t *testing.T) {
 	// Test with multiple orgs
 	handlers := map[string]http.HandlerFunc{
 		"/api/v3/users/org1/repos": func(w http.ResponseWriter, r *http.Request) {
-			repos := []*github.Repository{
+			repos := []mockRepo{
 				makeRepoResponse("org1", "core"),
 			}
 			w.Header().Set("Content-Type", "application/json")
 			mustEncode(w, repos)
 		},
 		"/api/v3/users/org2/repos": func(w http.ResponseWriter, r *http.Request) {
-			repos := []*github.Repository{
+			repos := []mockRepo{
 				makeRepoResponse("org2", "app"),
 			}
 			w.Header().Set("Content-Type", "application/json")
 			mustEncode(w, repos)
 		},
 		"/api/v3/repos/org1/core/contents/go.mod": func(w http.ResponseWriter, r *http.Request) {
-			content := &github.RepositoryContent{
-				Content:  github.Ptr(makeGoModContent("github.com/org1/core", nil)),
-				Encoding: github.Ptr("base64"),
+			content := &mockContent{
+				Content:  makeGoModContent("github.com/org1/core", nil),
+				Encoding: "base64",
+				Type:     "file",
 			}
 			w.Header().Set("Content-Type", "application/json")
 			mustEncode(w, content)
 		},
 		"/api/v3/repos/org2/app/contents/go.mod": func(w http.ResponseWriter, r *http.Request) {
-			content := &github.RepositoryContent{
-				Content: github.Ptr(makeGoModContent("github.com/org2/app", []string{
+			content := &mockContent{
+				Content: makeGoModContent("github.com/org2/app", []string{
 					"github.com/org1/core v1.0.0",
-				})),
-				Encoding: github.Ptr("base64"),
+				}),
+				Encoding: "base64",
+				Type:     "file",
 			}
 			w.Header().Set("Content-Type", "application/json")
 			mustEncode(w, content)
@@ -324,19 +350,20 @@ func TestBuilder_Build_ExternalDependency(t *testing.T) {
 	// Test that external dependencies are properly marked
 	handlers := map[string]http.HandlerFunc{
 		"/api/v3/users/testorg/repos": func(w http.ResponseWriter, r *http.Request) {
-			repos := []*github.Repository{
+			repos := []mockRepo{
 				makeRepoResponse("testorg", "mycli"),
 			}
 			w.Header().Set("Content-Type", "application/json")
 			mustEncode(w, repos)
 		},
 		"/api/v3/repos/testorg/mycli/contents/go.mod": func(w http.ResponseWriter, r *http.Request) {
-			content := &github.RepositoryContent{
-				Content: github.Ptr(makeGoModContent("github.com/testorg/mycli", []string{
+			content := &mockContent{
+				Content: makeGoModContent("github.com/testorg/mycli", []string{
 					"github.com/spf13/cobra v1.8.0",
 					"github.com/spf13/viper v1.18.0",
-				})),
-				Encoding: github.Ptr("base64"),
+				}),
+				Encoding: "base64",
+				Type:     "file",
 			}
 			w.Header().Set("Content-Type", "application/json")
 			mustEncode(w, content)
@@ -385,7 +412,7 @@ func TestBuilder_Build_WithCache(t *testing.T) {
 	callCount := 0
 	handlers := map[string]http.HandlerFunc{
 		"/api/v3/users/testorg/repos": func(w http.ResponseWriter, r *http.Request) {
-			repos := []*github.Repository{
+			repos := []mockRepo{
 				makeRepoResponse("testorg", "cached"),
 			}
 			w.Header().Set("Content-Type", "application/json")
@@ -393,9 +420,10 @@ func TestBuilder_Build_WithCache(t *testing.T) {
 		},
 		"/api/v3/repos/testorg/cached/contents/go.mod": func(w http.ResponseWriter, r *http.Request) {
 			callCount++
-			content := &github.RepositoryContent{
-				Content:  github.Ptr(makeGoModContent("github.com/testorg/cached", nil)),
-				Encoding: github.Ptr("base64"),
+			content := &mockContent{
+				Content:  makeGoModContent("github.com/testorg/cached", nil),
+				Encoding: "base64",
+				Type:     "file",
 			}
 			w.Header().Set("Content-Type", "application/json")
 			mustEncode(w, content)
@@ -406,7 +434,10 @@ func TestBuilder_Build_WithCache(t *testing.T) {
 	defer server.Close()
 
 	// Create builder with cache
-	client, err := github.NewClient(github.WithEnterpriseURLs(server.URL+"/", server.URL+"/"))
+	client, err := clientv1.NewClientWithOptions(context.Background(), clientv1.ClientOptions{
+		BaseURL:   server.URL + "/",
+		UploadURL: server.URL + "/",
+	})
 	if err != nil {
 		t.Fatalf("Failed to create GitHub client: %v", err)
 	}
@@ -450,16 +481,17 @@ func TestBuilder_Build_LanguageFilter(t *testing.T) {
 	// Test that non-Go languages are filtered out when not requested
 	handlers := map[string]http.HandlerFunc{
 		"/api/v3/users/testorg/repos": func(w http.ResponseWriter, r *http.Request) {
-			repos := []*github.Repository{
+			repos := []mockRepo{
 				makeRepoResponse("testorg", "goapp"),
 			}
 			w.Header().Set("Content-Type", "application/json")
 			mustEncode(w, repos)
 		},
 		"/api/v3/repos/testorg/goapp/contents/go.mod": func(w http.ResponseWriter, r *http.Request) {
-			content := &github.RepositoryContent{
-				Content:  github.Ptr(makeGoModContent("github.com/testorg/goapp", nil)),
-				Encoding: github.Ptr("base64"),
+			content := &mockContent{
+				Content:  makeGoModContent("github.com/testorg/goapp", nil),
+				Encoding: "base64",
+				Type:     "file",
 			}
 			w.Header().Set("Content-Type", "application/json")
 			mustEncode(w, content)

@@ -7,14 +7,17 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/go-github/v88/github"
+	"github.com/grokify/gogithub"
+	"github.com/grokify/gogithub/clientv1"
 	"github.com/grokify/mogo/net/http/retryhttp"
+	"golang.org/x/oauth2"
+
 	"github.com/plexusone/versionconductor/pkg/model"
 )
 
 // Builder constructs a dependency graph from GitHub repositories.
 type Builder struct {
-	client    *github.Client
+	client    clientv1.Client
 	portfolio Portfolio
 	cache     *Cache
 }
@@ -53,16 +56,19 @@ func NewBuilderWithConfig(cfg BuilderConfig) (*Builder, error) {
 		retryOpts = append(retryOpts, retryhttp.WithInitialBackoff(cfg.InitialBackoff))
 	}
 
-	// Create retry transport - handles 429 rate limits automatically
+	// Layer auth under the retry transport - handles 429 rate limits automatically
+	base := http.DefaultTransport
+	if cfg.Token != "" {
+		base = &oauth2.Transport{
+			Source: oauth2.StaticTokenSource(&oauth2.Token{AccessToken: cfg.Token}),
+			Base:   base,
+		}
+	}
+	retryOpts = append(retryOpts, retryhttp.WithTransport(base))
 	rt := retryhttp.NewWithOptions(retryOpts...)
 	httpClient := &http.Client{Transport: rt}
 
-	// Create GitHub client with retry-enabled HTTP client
-	opts := []github.ClientOptionsFunc{github.WithHTTPClient(httpClient)}
-	if cfg.Token != "" {
-		opts = append(opts, github.WithAuthToken(cfg.Token))
-	}
-	client, err := github.NewClient(opts...)
+	client, err := clientv1.NewClientWithHTTP(httpClient)
 	if err != nil {
 		return nil, fmt.Errorf("creating GitHub client: %w", err)
 	}
@@ -101,7 +107,7 @@ func (b *Builder) Build(ctx context.Context, portfolio Portfolio) (*DependencyGr
 		for _, repo := range repos {
 			// Check for Go modules
 			if containsLanguage(portfolio.Languages, string(LanguageGo)) || len(portfolio.Languages) == 0 {
-				gomod, err := b.fetchGoMod(ctx, owner, repo.GetName(), repo.GetDefaultBranch())
+				gomod, err := b.fetchGoMod(ctx, owner, repo.Name, repo.DefaultBranch)
 				if err != nil {
 					// No go.mod, skip
 					continue
@@ -124,42 +130,25 @@ func (b *Builder) Build(ctx context.Context, portfolio Portfolio) (*DependencyGr
 }
 
 // listRepos lists all repositories for an owner.
-func (b *Builder) listRepos(ctx context.Context, owner string) ([]*github.Repository, error) {
-	var allRepos []*github.Repository
-
-	opts := &github.RepositoryListByUserOptions{
-		ListOptions: github.ListOptions{PerPage: 100},
-		Type:        "owner",
-	}
-
-	for {
-		repos, resp, err := b.client.Repositories.ListByUser(ctx, owner, opts)
+func (b *Builder) listRepos(ctx context.Context, owner string) ([]*gogithub.Repository, error) {
+	repos, err := b.client.ListUserReposWithOptions(ctx, owner, &clientv1.ListUserReposOptions{Type: "owner"})
+	if err != nil {
+		// Try as organization
+		repos, err = b.client.ListOrgRepos(ctx, owner)
 		if err != nil {
-			// Try as organization
-			orgOpts := &github.RepositoryListByOrgOptions{
-				ListOptions: github.ListOptions{PerPage: 100},
-				Type:        "all",
-			}
-			repos, resp, err = b.client.Repositories.ListByOrg(ctx, owner, orgOpts)
-			if err != nil {
-				return nil, err
-			}
+			return nil, err
 		}
-
-		// Filter out archived and forked repos
-		for _, repo := range repos {
-			if !repo.GetArchived() && !repo.GetFork() {
-				allRepos = append(allRepos, repo)
-			}
-		}
-
-		if resp.NextPage == 0 {
-			break
-		}
-		opts.Page = resp.NextPage
 	}
 
-	return allRepos, nil
+	// Filter out archived and forked repos
+	var filtered []*gogithub.Repository
+	for _, repo := range repos {
+		if !repo.Archived && !repo.Fork {
+			filtered = append(filtered, repo)
+		}
+	}
+
+	return filtered, nil
 }
 
 // fetchGoMod fetches the go.mod file from a repository.
@@ -172,24 +161,10 @@ func (b *Builder) fetchGoMod(ctx context.Context, owner, repo, branch string) ([
 		}
 	}
 
-	content, _, resp, err := b.client.Repositories.GetContents(
-		ctx, owner, repo, "go.mod",
-		&github.RepositoryContentGetOptions{Ref: branch},
-	)
+	data, err := b.client.GetFileContent(ctx, owner, repo, "go.mod", &gogithub.ContentOptions{Ref: branch})
 	if err != nil {
 		return nil, err
 	}
-	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("go.mod not found")
-	}
-
-	// Decode content using the built-in method
-	decodedContent, err := content.GetContent()
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode content: %w", err)
-	}
-
-	data := []byte(decodedContent)
 
 	// Store in cache
 	if b.cache != nil {
@@ -201,7 +176,7 @@ func (b *Builder) fetchGoMod(ctx context.Context, owner, repo, branch string) ([
 }
 
 // createModule creates a Module from repo and go.mod info.
-func (b *Builder) createModule(org string, repo *github.Repository, modInfo *GoModInfo, managedOrgs map[string]bool) Module {
+func (b *Builder) createModule(org string, repo *gogithub.Repository, modInfo *GoModInfo, managedOrgs map[string]bool) Module {
 	moduleName := modInfo.Module
 	moduleID := NewModuleID(LanguageGo, moduleName)
 
@@ -222,6 +197,11 @@ func (b *Builder) createModule(org string, repo *github.Repository, modInfo *GoM
 		})
 	}
 
+	owner := ""
+	if repo.Owner != nil {
+		owner = repo.Owner.Login
+	}
+
 	return Module{
 		ID:       moduleID,
 		Language: LanguageGo,
@@ -229,15 +209,15 @@ func (b *Builder) createModule(org string, repo *github.Repository, modInfo *GoM
 		Org:      org,
 		Version:  getLatestVersion(repo),
 		Repo: &model.Repo{
-			Owner:         repo.GetOwner().GetLogin(),
-			Name:          repo.GetName(),
-			FullName:      repo.GetFullName(),
-			Description:   repo.GetDescription(),
-			DefaultBranch: repo.GetDefaultBranch(),
-			Private:       repo.GetPrivate(),
-			Archived:      repo.GetArchived(),
-			Language:      repo.GetLanguage(),
-			HTMLURL:       repo.GetHTMLURL(),
+			Owner:         owner,
+			Name:          repo.Name,
+			FullName:      repo.FullName,
+			Description:   repo.Description,
+			DefaultBranch: repo.DefaultBranch,
+			Private:       repo.Private,
+			Archived:      repo.Archived,
+			Language:      repo.Language,
+			HTMLURL:       repo.HTMLURL,
 		},
 		IsManaged:    isManaged,
 		Dependencies: deps,
@@ -260,9 +240,9 @@ func extractOwner(org string) string {
 
 // getLatestVersion gets the latest version tag from a repo.
 // For now, just returns the default branch name. TODO: fetch actual tags.
-func getLatestVersion(repo *github.Repository) string {
+func getLatestVersion(repo *gogithub.Repository) string {
 	// TODO: Fetch actual tags and find latest semver
-	return repo.GetDefaultBranch()
+	return repo.DefaultBranch
 }
 
 // containsLanguage checks if a language is in the list.
